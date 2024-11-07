@@ -1,25 +1,28 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary py-3 px-2">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#"><h3 style="color: blue;"><strong>ENEO-SIGAME</strong></h3></a>
+      <a class="navbar-brand" href="{% url 'home' %}"><h3 style="color: blue;"><strong>POWER-GUARD</strong></h3></a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse px-5" id="navbarNavDropdown">
         <ul class="navbar-nav">
           <li class="nav-item px-2">
-            <a class="nav-link active" aria-current="page" href="#">Tableau de bord</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %} " aria-current="page" href="{% url 'home' %}">Tableau de bord</a>
           </li>
           <li class="nav-item px-2">
-            <a class="nav-link" href="#">Equipement</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'equipement' %}active{% endif %}" href="{% url 'equipement' %}">Equipement</a>
           </li>
           <li class="nav-item px-2">
-            <a class="nav-link" href="#">Pièce de réchange</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'piece' %}active{% endif %}" href="{% url 'piece' %}">Pièce de réchange</a>
           </li>
           <li class="nav-item px-2">
-            <a class="nav-link" href="#">Intervention</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'intervention' %}active{% endif %}" href="{% url 'intervention' %}">Intervention</a>
           </li>
           <li class="nav-item px-2">
             <a class="nav-link" href="#">Planification</a>
+          </li>
+          <li class="nav-item px-2">
+            <a class="nav-link" href="#">Rapport</a>
           </li>
           <!-- <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -35,7 +38,7 @@
       </div>
     </div>
     <!-- Right elements -->
-    <div class="d-flex align-items-center">
+    <div class="d-flex align-items-center" style="margin-right: 1cm;">
         <!-- Avatar -->
         <div class="dropdown">
           <a

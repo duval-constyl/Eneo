@@ -14,8 +14,8 @@ class Centrale(models.Model):
     
 class Equipement(models.Model):
     TYPE_EQUIPE = [
-        ("Dis", "Disjoncteurs",),
-        ("Trans", "Transformateur"),
+        ("Disjoncteurs", "Disjoncteurs",),
+        ("Transformateur", "Transformateur"),
     ]
     centrale = models.ForeignKey(Centrale, on_delete=models.CASCADE)
     nom = models.CharField(max_length=100)
@@ -43,13 +43,13 @@ class Equipement(models.Model):
     date_modification=models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.nom, self.type_equipement
+        return "{} {}".format(self.nom, self.type_equipement)
 
 class Intervention(models.Model):
     STATUS = [
-        ("panne", "En panne"),
-        ("encours", "Encours de dépannage"),
-        ("rétablir", "Rétablir"),
+        ("En panne", "En panne"),
+        ("Encours", "Encours de dépannage"),
+        ("Rétablir", "Rétablir"),
     ]
     equipement = models.ForeignKey(Equipement, on_delete=models.CASCADE)
     date_intervention=models.DateField()
@@ -62,15 +62,16 @@ class Intervention(models.Model):
     date_modification=models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.id
+        return "{} {}".format(self.id, self.equipement)
     
 class Pièce(models.Model):
     nom=models.CharField(max_length=100)
     description = models.TextField()
+    photo = models.ImageField(upload_to="image", blank=True, null=True)
     quantité_disponible = models.IntegerField()
     prix_unitaire = models.IntegerField()
     date_création=models.DateTimeField(auto_now_add=True)
     date_modification=models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.nom, self.id
+        return self.nom
