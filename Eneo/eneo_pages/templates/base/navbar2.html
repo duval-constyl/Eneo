@@ -1,10 +1,9 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-body-white py-3 px-5 border-0" style="box-shadow: none">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#"><h4><strong>{{ title }}</strong></h4></a>
+        <h4 class="navbar-brand"><strong>{{ title|escape }}</strong> {{ detail1|safe }} {{ detail2 }}</h4>
         <div class="d-flex align-items-center">
-            <button data-mdb-ripple-init type="button" class="btn btn-success me-3">
-                {{ button }}
-            </button>
+            {{ button|safe }}
+            {{ button2|safe }}
             <form class="d-flex input-group w-auto">
               <input
                 type="search"

@@ -2,8 +2,9 @@
 
 
 {% block body %}
-    {% include "../base/navbar2.html" with title="Module Pièce de Réchange" button="Ajouter une pièce" %}
-
+    {% include "../base/modal.html" with title="Ajouter une pièce" button='<button type="button" class="btn btn-success" data-mdb-ripple-init>Ajouter</button>' %}
+    {% include "../base/navbar2.html" with title='<a href="#" style="color: black;">Module Pièce de Réchange</a>' button='<button data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#exampleModal" type="button" class="btn btn-success me-3">Ajouter une pièce</button>' %}
+    
     <div class="container">
         <div class="row py-3">
             {% for piece in liste_piece %}
@@ -31,5 +32,4 @@
             {% endfor %}
           </div>
     </div>
-    
 {% endblock %}
