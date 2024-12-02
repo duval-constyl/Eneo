@@ -57,38 +57,23 @@
     {% endblock %}
     <!-- End your project here-->
 
+    <div id="modal" class="modal fade" tabindex="-1">
+      <div id="dialog" class="modal-dialog modal-dialog-scrollable">
+    
+      </div>
+    </div>
+
     {% include "../base/footer.html" %}
     <!-- MDB -->
+    <script src="https://unpkg.com/htmx.org@2.0.3"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script type="text/javascript" src="{% static 'js/mdb.umd.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/dialog.js' %}"></script>
     <!-- Custom scripts -->
     <script type="text/javascript"></script>
-
     <!-- Include your jQuery UI and datepicker scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
-    <script>
-        $(document).ready(function() {
-            // Apply the datepicker to all input fields with the "datepicker" class
-            $('.datepicker').datepicker({
-                dateFormat: 'yy-mm-dd'  // Set your preferred date format
-            });
-        });
-    </script>
-    
-
-    <script>
-      $(document).ready(function() {
-          // Show the alert if the form is valid
-          $('#successAlert').fadeIn();
-
-          // Optionally, hide the alert after a few seconds
-          setTimeout(function() {
-              $('#successAlert').fadeOut();
-          }, 5000); // Hides after 5 seconds
-      });
-    </script>
   </body>
 </html>

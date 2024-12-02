@@ -28,3 +28,32 @@ class EquipementForm(forms.ModelForm):
                    'tension_assigne': forms.TextInput(attrs={'class':'form-control'}),
                    'pouvoir_de_coupure_nominal_court_circuit': forms.TextInput(attrs={'class':'form-control'}),
                    'pouvoir_de_fermeture_nominal_court_circuit': forms.TextInput(attrs={'class':'form-control'}),}
+
+
+class InterventionForm(forms.ModelForm):
+    class Meta:
+        model = Intervention
+        fields = ['equipement','date_intervention','date_defaillance','description','tache_maintenance','responsable','status','coût']
+        labels = {'equipement':'Equipement','date_intervention':'Date intervention','date_defaillance':'Date defaillance','description':'Description','tache_maintenance':'Tache maintenance','responsable':'Responsable','status':'Status','coût':'Coût'}
+        widgets = {'equipement': forms.Select(attrs={'class':'form-control'}),
+                   'date_intervention': forms.DateInput(attrs={'class':'form-control'}),
+                   'date_defaillance': forms.DateInput(attrs={'class':'form-control'}),
+                   'description': forms.Textarea(attrs={'class':'form-control'}),
+                   'tache_maintenance': forms.Textarea(attrs={'class':'form-control'}),
+                   'responsable': forms.TextInput(attrs={'class':'form-control'}),
+                   'status': forms.Select(attrs={'class':'form-control'}),
+                   'coût': forms.TextInput(attrs={'class':'form-control'}),
+                    }
+        
+
+class PieceForm(forms.ModelForm):
+    class Meta:
+        model = Pièce
+        fields = ['nom','description','photo','quantité_disponible','prix_unitaire']
+        labels = {'nom':'Nom','description':'Description','photo':'Photo','quantité_disponible':'Quantité disponible','prix_unitaire':'Prix unitaire'}
+        widgets = {'nom': forms.TextInput(attrs={'class':'form-control'}),
+                   'description': forms.Textarea(attrs={'class':'form-control'}),
+                   'photo' : forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'})),
+                   'quantité_disponible': forms.TextInput(attrs={'class':'form-control'}),
+                   'prix_unitaire': forms.TextInput(attrs={'class':'form-control'}),
+                    }

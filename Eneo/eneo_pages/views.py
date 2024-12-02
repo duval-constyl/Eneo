@@ -130,6 +130,52 @@ def intervention(request):
     context = {"liste_intervention" : intervention}
     return render(request, "pages/intervention.html", context)
 
+def detail_intervention(request, id_intervention):
+    detail_intervention = Intervention.objects.get(id = id_intervention)
+    context = {"intervention" : detail_intervention}
+    return render(request, "pages/interventionDet.html", context)
+
+class AddIntervention(CreateView):
+    model = Intervention
+    form_class = InterventionForm
+    template_name = "modal/add.html"
+        # Overriding the success_url method to reload the same page after form submission
+    def get_success_url(self):
+        # Redirects to the same URL after successful submission (i.e., staying on the same page)
+        return reverse_lazy('intervention')  # Assuming 'ajouter_equipement' is the name of the URL for this view.
+
+    # Override form_valid to clear the form after saving the instance
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        # After the form is successfully saved, clear the form fields
+        self.object = form.save()
+        form = self.get_form()
+        form = InterventionForm()  # Reset the form here
+        return response
+    
+class UpdateIntervention(UpdateView):
+    model = Intervention
+    form_class = InterventionForm
+    template_name = "modal/update.html"
+
+    def get_success_url(self):
+        # Redirects to the same URL after successful submission (i.e., staying on the same page)
+        return reverse('intervention', kwargs={'id_intervention': self.object.id}) 
+    
+    def get_object(self, queryset=None):
+        return Intervention.objects.get(pk=self.kwargs['pk'])
+    
+class DeleteIntervention(DeleteView):
+    model = Intervention
+    template_name = "modal/delete.html"
+
+    def get_success_url(self):
+        # Redirects to the same URL after successful submission (i.e., staying on the same page)
+        return reverse('intervention') 
+    
+    def get_object(self, queryset=None):
+        return Intervention.objects.get(pk=self.kwargs['pk'])
+
 def piece(request):
     piece = Pièce.objects.all()
     context = {"liste_piece" : piece}

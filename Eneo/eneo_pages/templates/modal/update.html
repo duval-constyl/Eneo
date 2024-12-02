@@ -1,0 +1,15 @@
+<!-- Button trigger modal -->
+  <!-- Modal -->
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Modifier l'élément</h5>
+    </div>
+    <div class="modal-body">
+      <form action="" enctype="multipart/form-data"  method="post"> 
+        {% csrf_token %} 
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Modifer</button>
+        <input value="Fermer" class="btn btn-secondary" data-mdb-ripple-init data-mdb-dismiss="modal">
+      </form>
+    </div>
+  </div>
