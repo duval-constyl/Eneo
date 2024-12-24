@@ -1,0 +1,15 @@
+<!-- Button trigger modal -->
+  <!-- Modal -->
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Modifier une intervention</h5>
+    </div>
+    <div class="modal-body">
+      <form hx-post="{{ request.path }}" action="" method="post">
+        {% csrf_token %} 
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Modifer</button>
+        <button type="button" data-bs-dismiss="modal" class="btn btn-info">Annuler</button>
+      </form>
+    </div>
+  </div>

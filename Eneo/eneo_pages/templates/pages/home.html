@@ -1,5 +1,129 @@
 {% extends "../base/base.html" %}
+{% load static %}
 
 {% block body %}
-    <h1 class="d-flex justify-content-center align-items-center pt-3 px-3">BIENVENUE</h1>
+<div class="mt-3 mb-5 px-5 py-3">
+  
+  <div class="row">
+    <!-- First Card Section -->
+    <div class="col-xxl-8 col-lg-7 mb-3 order-0">
+      <div class="card h-100">
+        <div class="d-flex align-items-start">
+          <div class="col-sm-7">
+            <div class="card-body">
+              <h5 class="card-title text-primary mb-3">Bienvenue sur POWERGUARD John! 🎉</h5>
+              <p class="mb-6">You have done 72% more sales today.<br>Check your new badge in your profile.</p>
+              <a href="javascript:;" class="btn btn-sm btn-outline-primary">Voir profile</a>
+            </div>
+          </div>
+          <div class="col-sm-5 text-center text-sm-left">
+            <div class="card-body pb-0 px-0 px-md-6">
+              <img src="{% static 'img/illustrations/man-with-laptop.png' %}" height="175" alt="View Badge User">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second Card Section -->
+    <div class="col-lg-5 col-md-12 mb-3">
+      <div class="card h-100">
+        <a href="" hx-get="" hx-target="#dialog" hx-swap="innerHTML" data-mdb-toggle="modal">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title">Intervention du jour</h5>
+            </div>
+            <ul class="list-group list-group-light">
+              <li class="list-group-item px-1">Qté ini :<span class='text-muted'> yes</span></li>
+              <li class='list-group-item px-1'>Qté restant :<spanclass='text-muted'> 2000</span></li>
+              <li class='list-group-item px=1'>Prix :<spanclass='text-muted'> yes Fcfa</span></li> 
+            </ul> 
+          </div> 
+        </a>  
+      </div>
+    </div>
+  </div> <!-- End of First Row -->
+
+  <div class="row">
+    <div class="col-12 col-md-6 col-lg-4 col-xl-4 py-3 px-3">
+      <div class="row">
+        <!-- First Vertical Card -->
+        <div class="col-lg-12 col-md-12 mb-3">
+          <div class="card" style="height: 250px;">
+            <div class="card-body">
+              <h5 class="card-title text-primary mb-4">Pièce de rechange</h5>
+              <div class="d-flex align-items-start">
+                <div class="col-sm-7">
+                  <p class="mb-1">Nombre en stock <br> <h5 class="mb-3">200 pièces</h5> </p>
+                  <p class="mb-1">Montant total <br> <h5>200 Fcfa</h5> </p>
+                </div>
+                <div class="col-sm-5 text-center text-sm-left">
+                  <div class="card-body pb-0 px-0 px-md-6 mb-3">
+                    <img src="{% static 'img/icons/unicons/wallet-info.png' %}" height="90" alt="wallet info" class="rounded">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Second Vertical Card -->
+        <div class="col-lg-12 col-md-12">
+          <div class="card" style="height: 250px;">
+            <a href="" hx-get="" hx-target="#dialog" hx-swap="innerHTML" data-mdb-toggle="modal">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="card-title">Activités d'aujourdhui</h5>
+                </div>
+                <ul class="list-group list-group-light">
+                  <li class="list-group-item px-1">Qté ini :<span class='text-muted'> yes</span></li>
+                  <li class='list-group-item px-1'>Qté restant :<spanclass='text-muted'> 2000</span></li>
+                  <li class='list-group-item px=1'>Prix :<spanclass='text-muted'> yes Fcfa</span></li> 
+                </ul> 
+              </div> 
+            </a> 
+          </div>
+        </div>
+      </div> <!-- End of Inner Row -->
+    </div>
+
+    <!-- Additional Cards -->
+    <div class="col-12 col-md-6 col-lg-4 col-xl-4 py-3 px-3">
+      <div class="card" style="height: 515px;">
+        <a href="" hx-get="" hx-target="#dialog" hx-swap="innerHTML" data-mdb-toggle="modal">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title">Quelques équipements</h5>
+            </div>
+            <ul class="list-group list-group-light">
+              <li class="list-group-item px-1">Qté ini :<span class='text-muted'> yes</span></li>
+              <li class='list-group-item px-1'>Qté restant :<spanclass='text-muted'> 2000</span></li>
+              <li class='list-group-item px=1'>Prix :<spanclass='text-muted'> yes Fcfa</span></li> 
+            </ul> 
+          </div> 
+        </a> 
+      </div> 
+    </div> 
+
+    <div class="col-12 col-md-6 col-lg-4 col-xl-4 py-3 px-3">
+      <div class="card" style="height: 515px;">
+        <a href="" hx-get="" hx-target="#dialog" hx-swap="innerHTML" data-mdb-toggle="modal">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title">Intervention</h5>
+              <span class="badge rounded-pill badge-danger">En panne</span>
+            </div>
+            <ul class="list-group list-group-light">
+              <li class="list-group-item px-1">Qté ini :<span class='text-muted'> yes</span></li>
+              <li class='list-group-item px-1'>Qté restant :<spanclass='text-muted'> 2000</span></li>
+              <li class='list-group-item px=1'>Prix :<spanclass='text-muted'> yes Fcfa</span></li> 
+            </ul> 
+          </div> 
+        </a> 
+      </div> 
+    </div> 
+  </div> <!-- End of Second Row -->
+
+</div>
+
 {% endblock %}

@@ -1,0 +1,53 @@
+{% extends "../../base/base.html" %}
+{% load static %}
+
+{% block body %}
+    {% url 'ajouter_equipement' as ajouter_equipement_url %}
+    {% url 'equipement_import' as equipement_import_url %}
+
+    {% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Equipement</a>' button2='<a href="'|add:ajouter_equipement_url|add:'" type="button" class="btn btn-success me-3">Ajouter un équipement</a>' button='<a href="#" type="button" class="btn btn-primary me-3" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#exampleModal" >Importer les données</a>' %}
+    {% include "../../base/import.html" %}
+    <div class="p-3 vh-100">
+        <table class="table table-hover table-bordered border-primary table-responsive">
+            <thead class="table-dark">
+              <tr>
+                <th scope="col">Centrale</th>
+                <th scope="col">Nom</th>
+                <th scope="col">Type d'équipement</th>
+                <th scope="col">Modèle</th>
+                <th scope="col">Marque</th>
+                <th scope="col">Fréquence</th>
+                <th scope="col">Puissance</th>
+                <th scope="col">Date d'installation</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            {% if liste_equipement %}
+              {% for equipement in liste_equipement %}
+                <tbody>
+                    <tr>
+                      <a href="#">
+                        <th>{{equipement.centrale}}</th>
+                        <td>{{equipement.nom}}</td>
+                        <td>{{equipement.type_equipement}}</td>
+                        <td>{{equipement.modèle}}</td>
+                        <td>{{equipement.marque}}</td>
+                        <td>{{equipement.fréquence}}</td>
+                        <td>{{equipement.puissance}}</td>
+                        <td>{{equipement.date_installation}}</td>
+                        <td><a href="{% url 'detail_equipement' equipement.id %}"><span class="badge rounded-pill badge-warning fs-7">Voir</span></a></td>
+                      </a>
+                    </tr>
+                  </a>
+                </tbody>
+              {% endfor %}
+              {% else %}
+                <tr class="text-center">
+                  <img src="{% static 'img/empty.gif' %}" alt="" style="height: 200px; width: 200px;" srcset="">
+                  <p colspan="9">Aucune pièce de rechange.</p>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+    
+{% endblock %}

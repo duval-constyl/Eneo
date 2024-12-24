@@ -1,0 +1,43 @@
+{% extends "../../base/base.html" %}
+{% load static %}
+
+{% block body %}
+    {% url 'ajouter_piece' as ajouter_piece_url %}
+    {% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Pièce de Récharge</a>' button='<button type="button" hx-get="'|add:ajouter_piece_url|add:'" hx-target="#dialog" class="btn btn-success me-3">Ajouter une piece</button>' %}
+    <div class="container">
+        <div class="row py-3">
+          {% if liste_piece %}
+            {% for piece in liste_piece %}
+            <div class="col-12 col-md-6 col-lg-4 col-xl-4 py-3 px-3 fade-out-up">
+              <div class="card h-100 fade-out-up">
+                <a  href="{% url 'detail_piece' piece.id %}" hx-get="{% url 'detail_piece' piece.id %}" hx-target="#dialog" hx-swap="innerHTML" data-mdb-toggle="modal">
+                    <div class="bg-image hover-zoom">
+                        <img src="{% if piece.photo %}{{ piece.photo.url }}{% else %}/static/img/empty.jpg{% endif %}" class="card-img-top" alt="Image Description" style="height: 180px;"/>
+                    </div>
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title">{{piece.nom|capfirst}}</h5>
+                        <span class="badge rounded-pill badge-success">Utiliser</span>
+                      </div>
+                      <p class="card-text text-muted">{{piece.description|truncatewords:20}}</p>
+                      <ul class="list-group list-group-light">
+                        <li class="list-group-item px-1">Qté ini : <span class="text-muted">{{piece.quantité_disponible}}</span></li>
+                        <li class="list-group-item px-1">Qté restant : <span class="text-muted">2000</span></li>
+                        <li class="list-group-item px-1">Prix : <span class="text-muted">{{piece.prix_unitaire}} Fcfa</span></li>
+                      </ul>
+                    </div>
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+
+            {% else %}
+            <div class="text-center">
+              <img src="{% static 'img/empty.gif' %}" alt="" style="height: 200px; width: 200px;" srcset="">
+              <p colspan="9">Aucune pièce de rechange.</p>
+            </div>
+
+          {% endif %}
+        </div>
+    </div>
+{% endblock %}

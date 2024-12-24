@@ -1,0 +1,27 @@
+{% extends "../../base/base.html" %}
+
+
+{% block body %}
+    {% include "../../base/navbar2.html" with detail1='<span style="margin-left: 8px;"> \ Ajouter un équipement</span>' title='<a href="#" style="color: black;">Module Equipement</a>'%}
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <h2 class="text-center mb-4">Ajouter un équipement</h2>
+                <form action="" method="post" enctype="multipart/form-data" class="bg-light p-4 rounded shadow">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success">Enregistrer L'Équipement</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Success Alert (Initially hidden) -->
+    {% if form.is_bound and form.is_valid %}
+    <div class="alert alert-success mt-3" role="alert" id="successAlert">
+        <strong>Success!</strong> Your form has been successfully submitted, and all fields have been cleared.
+    </div>
+    {% endif %}
+    
+{% endblock %}

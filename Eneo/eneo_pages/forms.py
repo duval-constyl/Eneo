@@ -1,8 +1,52 @@
 from django import forms
 from .models import *
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 # Create your forms here.
 #()
+class CustomRegistrationForm(UserCreationForm):
+    first_name = forms.CharField(widget=forms.TextInput(attrs={
+        'placeholder': 'Nom',
+        'class': 'form-control'
+    }))
+    last_name = forms.CharField(widget=forms.TextInput(attrs={
+        'placeholder': 'Prénom',
+        'class': 'form-control'
+    }))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={
+        'placeholder': 'Adresse mail',
+        'class': 'form-control mb-3'
+    }))
+    username = forms.CharField(widget=forms.TextInput(attrs={
+        'placeholder': 'Nom utilisateur',
+        'class': 'form-control mb-3'
+    }))
+    section = forms.ChoiceField(choices=User.Section.choices, widget=forms.Select(attrs={
+        'class': 'form-control mb-3'
+    }))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'placeholder': 'Mot de passe',
+        'class': 'form-control mb-3'
+    }))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'placeholder': 'Confirmer mot de passe',
+        'class': 'form-control mb-3'
+    }))
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'username', 'section', 'password1', 'password2'] 
+
+class CustomLoginForm(AuthenticationForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={
+        'placeholder': 'Nom utilisateur',
+        'class': 'form-control mb-3'
+    }))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'placeholder': 'Mot de passe',
+        'class': 'form-control mb-3'
+    }))
+
 class EquipementForm(forms.ModelForm):
     class Meta:
         model = Equipement
@@ -36,8 +80,8 @@ class InterventionForm(forms.ModelForm):
         fields = ['equipement','date_intervention','date_defaillance','description','tache_maintenance','responsable','status','coût']
         labels = {'equipement':'Equipement','date_intervention':'Date intervention','date_defaillance':'Date defaillance','description':'Description','tache_maintenance':'Tache maintenance','responsable':'Responsable','status':'Status','coût':'Coût'}
         widgets = {'equipement': forms.Select(attrs={'class':'form-control'}),
-                   'date_intervention': forms.DateInput(attrs={'class':'form-control'}),
-                   'date_defaillance': forms.DateInput(attrs={'class':'form-control'}),
+                   'date_intervention': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
+                   'date_defaillance': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
                    'description': forms.Textarea(attrs={'class':'form-control'}),
                    'tache_maintenance': forms.Textarea(attrs={'class':'form-control'}),
                    'responsable': forms.TextInput(attrs={'class':'form-control'}),
@@ -53,7 +97,7 @@ class PieceForm(forms.ModelForm):
         labels = {'nom':'Nom','description':'Description','photo':'Photo','quantité_disponible':'Quantité disponible','prix_unitaire':'Prix unitaire'}
         widgets = {'nom': forms.TextInput(attrs={'class':'form-control'}),
                    'description': forms.Textarea(attrs={'class':'form-control'}),
-                   'photo' : forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'})),
+                   'photo': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
                    'quantité_disponible': forms.TextInput(attrs={'class':'form-control'}),
                    'prix_unitaire': forms.TextInput(attrs={'class':'form-control'}),
                     }

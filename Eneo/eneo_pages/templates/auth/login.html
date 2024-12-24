@@ -1,0 +1,56 @@
+{% extends "../auth/base.html" %}
+
+{% block body %}
+    <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+        <div class="col-md-4">
+            <div class="border rounded p-4 shadow">
+                <h4 class="text-center mb-4">Connexion</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    <!-- user input -->
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                          <div class="invalid-feedback d-block">
+                            {% for error in form.username.errors %}
+                              <p>{{ error }}</p>
+                            {% endfor %}
+                          </div>
+                    {% endif %}
+                
+                    <!-- Password input -->
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.password.errors %}
+                              <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                
+                    <!-- 2 column grid layout for inline styling -->
+                    <div class="row mb-4 mt-3">
+                        <div class="col d-flex justify-content-center">
+                            <!-- Checkbox -->
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="form1Example3" checked />
+                                <label class="form-check-label" for="form1Example3"> Remember me </label>
+                            </div>
+                        </div>
+                
+                        <div class="col text-end">
+                            <!-- Simple link -->
+                            <a href="{% url 'forgot-password' %}" style="size: 2px;">MDP oublié?</a>
+                        </div>
+                    </div>
+                
+                    <!-- Submit button -->
+                    <button class="btn btn-primary btn-block" type="submit">Se connecter</button>
+
+                    <div class="text-center mt-3">
+                        <p>Si vous n'avez pas de compte ? <a href="{% url 'register' %}">S'enregistrer</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

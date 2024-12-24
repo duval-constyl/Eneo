@@ -1,7 +1,50 @@
+from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
 from django.db import models
+import uuid
 
-# Create your models here.
-#()
+class UserManager(BaseUserManager):
+    def create_user(self, username, email, password=None, section=None, **extra_fields):
+        if not email:
+            raise ValueError('Users must have an email address')
+        if not username:
+            raise ValueError('Users must have a username')
+
+        user = self.model(
+            username=username,
+            email=self.normalize_email(email),
+            section=section,
+            **extra_fields
+        )
+        user.set_password(password)  # Hash the password
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, email, password=None):
+        user = self.create_user(
+            username=username,
+            email=email,
+            password=password,
+            section='ADMIN'  # Set default section for superuser
+        )
+        user.is_admin = True
+        user.is_superuser = True
+        user.is_staff = True
+        user.save(using=self._db)
+        return user
+    
+class User(AbstractUser, PermissionsMixin):
+    class Section(models.TextChoices):
+        ADMIN = "ADMIN", 'Admin'
+        DISJONCTEUR = "DISJONCTEUR", 'Disjoncteur'
+        TRANSFORMATEUR = "TRANSFORMATEUR", 'Transformateur'
+
+    section = models.CharField(max_length=50, choices=Section.choices, default=Section.ADMIN)
+    objects = UserManager()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+
 class Centrale(models.Model):
     nom=models.CharField(max_length=100)
     localisation = models.CharField(max_length=100)
@@ -14,7 +57,7 @@ class Centrale(models.Model):
     
 class Equipement(models.Model):
     TYPE_EQUIPE = [
-        ("Disjoncteurs", "Disjoncteurs",),
+        ("Disjoncteur", "Disjoncteur",),
         ("Transformateur", "Transformateur"),
     ]
     centrale = models.ForeignKey(Centrale, on_delete=models.CASCADE)
@@ -76,3 +119,12 @@ class Pièce(models.Model):
 
     def __str__(self):
         return self.nom
+
+
+class PasswordReset(models.Model):
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
+    id_modification = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    date_création = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Password reset for {self.user.username} at {self.date_création}"
