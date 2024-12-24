@@ -12,7 +12,7 @@
     {% endwith %}
 
     
-    <div class="container mb-3">
+    <div class="container vh-100 mb-3">
         <div class="row">
             <div class="col-md-6">
                 <ul class="list-group">
@@ -28,18 +28,23 @@
             </div>
             <div class="col-md-6">
                 <ul class="list-group">
-                    <li class="list-group-item">Fonction: <span class="text-muted">{{ equipement.fonction }}</span></li>
-                    <li class="list-group-item">Emplacement couplage: <span class="text-muted">{{ equipement.emplacement_couplage }}</span></li>
-                    <li class="list-group-item">Regleur en chargeur: <span class="text-muted">{{ equipement.regleur_en_chargeur }}</span></li>
-                    <li class="list-group-item">Mode de fonctionnement: <span class="text-muted">{{ equipement.mode_de_fonctionnement }}</span></li>
-                    <li class="list-group-item">Technique de coupure: <span class="text-muted">{{ equipement.technique_de_coupure }}</span></li>
-                    <li class="list-group-item">Pouvoir de coupure: <span class="text-muted">{{ equipement.pouvoir_de_coupure }}</span></li>
-                    <li class="list-group-item">Pression gaz nombre de pôle: <span class="text-muted">{{ equipement.pression_gaz_nombre_de_pôle }}</span></li>
-                    <li class="list-group-item">Courant nominal en service continu: <span class="text-muted">{{ equipement.courant_nominal_en_service_continu }}</span></li>
-                    <li class="list-group-item">Numero service: <span class="text-muted">{{ equipement.numero_service }}</span></li>
-                    <li class="list-group-item">Tension assigne: <span class="text-muted">{{ equipement.tension_assigne }}</span></li>
-                    <li class="list-group-item">Pouvoir de coupure nominal court circuit: <span class="text-muted">{{ equipement.pouvoir_de_coupure_nominal_court_circuit }}</span></li>
-                    <li class="list-group-item">Pouvoir de fermeture nominal court circuit: <span class="text-muted">{{ equipement.pouvoir_de_fermeture_nominal_court_circuit }}</span></li>
+                    {% if equipement.type_equipement == "Disjoncteur" %}
+                        <li class="list-group-item">Technique de coupure: <span class="text-muted">{{ equipement.technique_de_coupure }}</span></li>
+                        <li class="list-group-item">Pouvoir de coupure: <span class="text-muted">{{ equipement.pouvoir_de_coupure }}</span></li>
+                        <li class="list-group-item">Pression gaz nombre de pôle: <span class="text-muted">{{ equipement.pression_gaz_nombre_de_pôle }}</span></li>
+                        <li class="list-group-item">Courant nominal en service continu: <span class="text-muted">{{ equipement.courant_nominal_en_service_continu }}</span></li>
+                        <li class="list-group-item">Numero service: <span class="text-muted">{{ equipement.numero_service }}</span></li>
+                        <li class="list-group-item">Tension assigne: <span class="text-muted">{{ equipement.tension_assigne }}</span></li>
+                        <li class="list-group-item">Pouvoir de coupure nominal court circuit: <span class="text-muted">{{ equipement.pouvoir_de_coupure_nominal_court_circuit }}</span></li>
+                        <li class="list-group-item">Pouvoir de fermeture nominal court circuit: <span class="text-muted">{{ equipement.pouvoir_de_fermeture_nominal_court_circuit }}</span></li>
+                    {% endif %}
+
+                    {% if equipement.type_equipement == "Transformateur" %}
+                        <li class="list-group-item">Fonction: <span class="text-muted">{{ equipement.fonction }}</span></li>
+                        <li class="list-group-item">Emplacement couplage: <span class="text-muted">{{ equipement.emplacement_couplage }}</span></li>
+                        <li class="list-group-item">Regleur en chargeur: <span class="text-muted">{{ equipement.regleur_en_chargeur }}</span></li>
+                        <li class="list-group-item">Mode de fonctionnement: <span class="text-muted">{{ equipement.mode_de_fonctionnement }}</span></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

@@ -20,8 +20,68 @@ from django.contrib.auth import login, get_user_model
 
 
 @login_required
-def home(request):
-    return render(request, "pages/home.html")
+def home(request):    
+    User = get_user_model()  # Get the custom user model
+    user = request.user  # Get the currently logged-in user
+
+    # Rubrique intervention jour
+    # Obtenir la date du jour
+    today = timezone.now().date()
+    if user.section == 'DISJONCTEUR':
+        intervention_date = Intervention.objects.filter(equipement__type_equipement='Disjoncteur', date_intervention=today)
+    elif user.section == 'TRANSFORMATEUR':
+        intervention_date = Intervention.objects.filter(equipement__type_equipement='Transformateur', date_intervention=today)
+    else:
+        intervention_date = Intervention.objects.filter(date_intervention=today)
+
+    #Rubrique intervention en panne
+    if user.section == 'DISJONCTEUR':
+        intervention_status = Intervention.objects.filter(equipement__type_equipement='Disjoncteur', status='En panne')
+    elif user.section == 'TRANSFORMATEUR':
+        intervention_status = Intervention.objects.filter(equipement__type_equipement='Transformateur', status='En panne')
+    else:
+        intervention_status = Intervention.objects.filter(status='En panne')
+
+    # Rubrique pièce
+    pieces = Pièce.objects.all()  # Récupérer toutes les pièces
+    total_pieces = pieces.count()  # Compter le nombre total de pièces
+    total_montant = sum((piece.prix_unitaire * piece.quantité_disponible) for piece in pieces)  # Calculer le montant total des pièces Rubrique piece
+
+    # Rubrique équipement
+    # Filter equipment based on user section
+    if user.section == 'DISJONCTEUR':
+        liste_equipement = Equipement.objects.filter(type_equipement='Disjoncteur')
+    elif user.section == 'TRANSFORMATEUR':
+        liste_equipement = Equipement.objects.filter(type_equipement='Transformateur')
+    else:
+        liste_equipement = Equipement.objects.all()
+
+    context = {
+        "liste_equipement" : liste_equipement,
+        "liste_intervention_date" : intervention_date,
+        "liste_intervention_status" : intervention_status,
+        "total_pieces": total_pieces,
+        "total_montant": total_montant,
+    }
+    return render(request, "pages/home.html", context)
+
+@login_required
+def intervention_home(request):
+    User = get_user_model()  # Get the custom user model
+    user = request.user  # Get the currently logged-in user
+     # Obtenir la date du jour
+    today = timezone.now().date()
+    
+    # Filter equipment based on user section
+    if user.section == 'DISJONCTEUR':
+        intervention_date = Intervention.objects.filter(equipement__type_equipement='Disjoncteur', date_intervention=today)
+    elif user.section == 'TRANSFORMATEUR':
+        intervention_date = Intervention.objects.filter(equipement__type_equipement='Transformateur', date_intervention=today)
+    else:
+        intervention_date = Intervention.objects.filter(date_intervention=today)
+
+    context_date = {"liste_intervention_date" : intervention_date}
+    return render(request, "pages/home.html", context_date)
 
 # Auth views
 def RegisterView(request):

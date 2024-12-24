@@ -11,8 +11,8 @@
         <div class="d-flex align-items-start">
           <div class="col-sm-7">
             <div class="card-body">
-              <h5 class="card-title text-primary mb-3">Bienvenue sur POWERGUARD John! 🎉</h5>
-              <p class="mb-6">You have done 72% more sales today.<br>Check your new badge in your profile.</p>
+              <h5 class="card-title text-primary mb-3">Bienvenue sur POWERGUARD {{ request.user.username }}! 🎉</h5>
+              <p class="mb-6">Nous vous remercions de votre confiance continue. <br>Gérez vos équipements, interventions et pièces de rechange avec facilité.</p>
               <a href="javascript:;" class="btn btn-sm btn-outline-primary">Voir profile</a>
             </div>
           </div>
@@ -33,10 +33,22 @@
             <div class="d-flex justify-content-between align-items-center">
               <h5 class="card-title">Intervention du jour</h5>
             </div>
-            <ul class="list-group list-group-light">
-              <li class="list-group-item px-1">Qté ini :<span class='text-muted'> yes</span></li>
-              <li class='list-group-item px-1'>Qté restant :<spanclass='text-muted'> 2000</span></li>
-              <li class='list-group-item px=1'>Prix :<spanclass='text-muted'> yes Fcfa</span></li> 
+            <ul class="list-group list-group-small list-group-light">
+              {% if liste_intervention_date %}
+                {% for intervention in liste_intervention_date|slice:":3" %}
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <p>Intervention sur :<span class='text-muted'> {{intervention}}</span></p>
+                    <p>{{intervention.date_intervention|date:"d/m/Y"}}</p>
+                  </div>
+                </li>
+                {% endfor %} 
+                {% else %}
+                <div class="text-center">
+                  <img src="{% static 'img/empty.gif' %}" alt="" style="height: 100px; width: 100px;" srcset="">
+                  <p colspan="9">Aucune intervention disponible.</p>
+                </div>
+              {% endif %}
             </ul> 
           </div> 
         </a>  
@@ -54,8 +66,8 @@
               <h5 class="card-title text-primary mb-4">Pièce de rechange</h5>
               <div class="d-flex align-items-start">
                 <div class="col-sm-7">
-                  <p class="mb-1">Nombre en stock <br> <h5 class="mb-3">200 pièces</h5> </p>
-                  <p class="mb-1">Montant total <br> <h5>200 Fcfa</h5> </p>
+                  <p class="mb-1">Nombre en stock <br> <h5 class="mb-3">{{total_pieces}}</h5> </p>
+                  <p class="mb-1">Montant total <br> <h5>{{total_montant}} Fcfa</h5> </p>
                 </div>
                 <div class="col-sm-5 text-center text-sm-left">
                   <div class="card-body pb-0 px-0 px-md-6 mb-3">
@@ -95,10 +107,23 @@
             <div class="d-flex justify-content-between align-items-center">
               <h5 class="card-title">Quelques équipements</h5>
             </div>
-            <ul class="list-group list-group-light">
-              <li class="list-group-item px-1">Qté ini :<span class='text-muted'> yes</span></li>
-              <li class='list-group-item px-1'>Qté restant :<spanclass='text-muted'> 2000</span></li>
-              <li class='list-group-item px=1'>Prix :<spanclass='text-muted'> yes Fcfa</span></li> 
+            <ul class="list-group list-group-small list-group-light">
+              {% if liste_equipement %}
+                {% for equipement in liste_equipement|slice:":5" %}
+                <li class="list-group-item px-1">
+                  <p>Centrale : {{equipement.centrale}}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <p>Equipement :<span class='text-muted'> {{equipement.nom}}</span></p>
+                    <p>{{equipement.date_installation|date:"d/m/Y"}}</p>
+                  </div>
+                </li>
+                {% endfor %} 
+                {% else %}
+                <div class="text-center">
+                  <img src="{% static 'img/empty.gif' %}" alt="" style="height: 100px; width: 100px;" srcset="">
+                  <p colspan="9">Aucun equipement disponible.</p>
+                </div>
+              {% endif %}
             </ul> 
           </div> 
         </a> 
@@ -110,13 +135,25 @@
         <a href="" hx-get="" hx-target="#dialog" hx-swap="innerHTML" data-mdb-toggle="modal">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
-              <h5 class="card-title">Intervention</h5>
-              <span class="badge rounded-pill badge-danger">En panne</span>
+              <h5 class="card-title">Intervention en statut panne</h5>
             </div>
-            <ul class="list-group list-group-light">
-              <li class="list-group-item px-1">Qté ini :<span class='text-muted'> yes</span></li>
-              <li class='list-group-item px-1'>Qté restant :<spanclass='text-muted'> 2000</span></li>
-              <li class='list-group-item px=1'>Prix :<spanclass='text-muted'> yes Fcfa</span></li> 
+            <ul class="list-group list-group-small list-group-light">
+              {% if liste_intervention_status %}
+                {% for intervention in liste_intervention_status|slice:":5" %}
+                <li class="list-group-item px-1">
+                  <p>Intervention sur :<span class='text-muted'> {{intervention}}</span></p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h6>{{intervention.date_intervention}}</h6>
+                    <span class="badge rounded-pill {% if intervention.status == 'Encours' %}badge-warning{% elif intervention.status == 'Rétablir' %}badge-success{% elif intervention.status == 'En panne' %}badge-danger{% else %}badge-secondary{% endif %}">{{intervention.status}}</span>
+                  </div>
+                </li>
+                {% endfor %} 
+                {% else %}
+                <div class="text-center">
+                  <img src="{% static 'img/empty.gif' %}" alt="" style="height: 100px; width: 100px;" srcset="">
+                  <p colspan="9">Aucune intervention en panne.</p>
+                </div>
+              {% endif %}
             </ul> 
           </div> 
         </a> 
