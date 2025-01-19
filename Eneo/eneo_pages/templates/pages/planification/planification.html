@@ -1,11 +1,180 @@
 {% extends "../../base/base.html" %}
-
+{% load static %}
 
 {% block body %}
 {% url 'ajouter_planification' as ajouter_planification_url %}
 {% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Planification</a>' button='<button type="button" hx-get="'|add:ajouter_planification_url|add:'" hx-target="#dialog" class="btn btn-success me-3">Ajouter une planification</button>' %}
-<div class="p-3">
 
-    </div>
-    
+<!-- Buttons trigger collapse -->
+<div class="mt-2 px-5 py-2 vh-100">
+  <div class="accordion" id="accordionCentrales">
+    {% for centrale in centrales %}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingCentrale{{ centrale.id }}">
+          <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" 
+                  data-bs-toggle="collapse" 
+                  data-bs-target="#collapseCentrale{{ centrale.id }}" 
+                  aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" 
+                  aria-controls="collapseCentrale{{ centrale.id }}">
+            {{ centrale.nom }}
+          </button>
+        </h2>
+        <div id="collapseCentrale{{ centrale.id }}" 
+             class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" 
+             aria-labelledby="headingCentrale{{ centrale.id }}" 
+             data-bs-parent="#accordionCentrales">
+          <div class="accordion-body">
+            <div class="accordion" id="accordionEquipements{{ centrale.id }}">
+              {% for equipement in centrale.filtered_equipements %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingEquipement{{equipement.id}}">
+                    <button class="accordion-button collapsed" type="button" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#collapseEquipement{{equipement.id}}" 
+                            aria-expanded="false" 
+                            aria-controls="collapseEquipement{{equipement.id}}">
+                      {{ equipement.nom }} - Type: {{ equipement.type_equipement }}
+                    </button>
+                  </h2>
+                  <div id="collapseEquipement{{equipement.id}}" 
+                       class="accordion-collapse collapse" 
+                       aria-labelledby="headingEquipement{{equipement.id}}" 
+                       data-bs-parent="#accordionEquipements{{ centrale.id }}">
+                    <div class="accordion-body">
+                      <div class="table-responsive">
+                        <table class="table table-hover text-nowrap">
+                          <thead>
+                            <tr>
+                              <th scope="col"></th>
+                              <th scope="col">Jav</th>
+                              <th scope="col">Fev</th>
+                              <th scope="col">Mar</th>
+                              <th scope="col">Avr</th>
+                              <th scope="col">Mai</th>
+                              <th scope="col">Jui</th>
+                              <th scope="col">Jul</th>
+                              <th scope="col">Aou</th>
+                              <th scope="col">Sep</th>
+                              <th scope="col">Oct</th>
+                              <th scope="col">Nov</th>
+                              <th scope="col">Dev</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <th scope="row">Opération maintenance</th>
+                              <td>18,492</td>
+                              <td>228</td>
+                              <td>350</td>
+                              <td>$4,787.64</td>
+                              <td>$13.68</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Fréquence</th>
+                              <td>
+                                <span class="text-danger">
+                                  <i class="fas fa-caret-down me-1"></i><span>-48.8%%</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-success">
+                                  <i class="fas fa-caret-up me-1"></i><span>14.0%</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-success">
+                                  <i class="fas fa-caret-up me-1"></i><span>46.4%</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-success">
+                                  <i class="fas fa-caret-up me-1"></i><span>29.6%</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-danger">
+                                  <i class="fas fa-caret-down me-1"></i><span>-11.5%</span>
+                                </span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Heure homme requise</th>
+                              <td>
+                                <span class="text-danger">
+                                  <i class="fas fa-caret-down me-1"></i><span>-17,654</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-success">
+                                  <i class="fas fa-caret-up me-1"></i><span>28</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-success">
+                                  <i class="fas fa-caret-up me-1"></i><span>111</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-success">
+                                  <i class="fas fa-caret-up me-1"></i><span>$1,092.72</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-danger">
+                                  <i class="fas fa-caret-down me-1"></i><span>$-1.78</span>
+                                </span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Liste outillage</th>
+                              <td>
+                                <span class="text-danger">
+                                  <i class="fas fa-caret-down me-1"></i><span>-17,654</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-success">
+                                  <i class="fas fa-caret-up me-1"></i><span>28</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-success">
+                                  <i class="fas fa-caret-up me-1"></i><span>111</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-success">
+                                  <i class="fas fa-caret-up me-1"></i><span>$1,092.72</span>
+                                </span>
+                              </td>
+                              <td>
+                                <span class="text-danger">
+                                  <i class="fas fa-caret-down me-1"></i><span>$-1.78</span>
+                                </span>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% empty %}
+                <p>Aucun équipement disponible pour cette centrale.</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="text-center">
+        <img src="{% static 'img/empty.gif' %}" alt="" style="height: 200px; width: 200px;">
+        <p>Aucune centrale disponible</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+
+
 {% endblock %}

@@ -8,6 +8,7 @@
       <form action="{% url 'ajouter_intervention' %}" enctype="multipart/form-data"  method="post"> 
         {% csrf_token %} 
         {{ form.as_p }}
+        <p>Liste materiel: <a href="{% url 'gestion_pieces' %}"><span class="badge rounded-pill badge-warning fs-7">Voir</span></a></p>
         <button type="submit" class="btn btn-success">Ajouter</button>
         <button type="button" data-bs-dismiss="modal" class="btn btn-info">Annuler</button>
       </form>

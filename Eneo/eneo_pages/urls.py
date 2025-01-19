@@ -35,6 +35,7 @@ urlpatterns = [
     path("piece/ajouter", views.AddPiece.as_view(), name="ajouter_piece"),
     path("piece/update/<int:pk>", views.UpdatePiece.as_view(), name="update_piece"),
     path("piece/delete/<int:pk>", views.DeletePiece.as_view(), name="delete_piece"),
+    path("piece/utiliser", views.gestion_pieces, name="gestion_pieces"),
 
     # Module Planification
     path("planification", views.planification, name="planification"),
@@ -42,5 +43,12 @@ urlpatterns = [
     path("planification/ajouter", views.AddPlanification.as_view(), name="ajouter_planification"),
     path("planification/update/<int:pk>", views.UpdatePlanification.as_view(), name="update_planification"),
     path("planification/delete/<int:pk>", views.DeletePlanification.as_view(), name="delete_planification"),
+
+    # Module dossier
+    path("dossier", views.dossier, name="dossier"),
+    path("dossier/<int:id_dossier>", views.detail_dossier, name="detail_dossier"),
+    path("dossier/ajouter", views.AddDossier.as_view(), name="ajouter_dossier"),
+    path("dossier/update/<int:pk>", views.UpdateDossier.as_view(), name="update_dossier"),
+    path("dossier/delete/<int:pk>", views.DeleteDossier.as_view(), name="delete_dossier"),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

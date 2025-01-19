@@ -63,6 +63,7 @@ class Equipement(models.Model):
     centrale = models.ForeignKey(Centrale, on_delete=models.CASCADE)
     nom = models.CharField(max_length=100)
     type_equipement = models.CharField(max_length=100, choices=TYPE_EQUIPE)
+    numero_serie=models.CharField(max_length=100, blank=True, null=True)
     modèle = models.CharField(max_length=100)
     marque = models.CharField(max_length=100)
     puissance = models.FloatField()
@@ -86,33 +87,14 @@ class Equipement(models.Model):
     date_modification=models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return "{} {}".format(self.nom, self.type_equipement)
-
-class Intervention(models.Model):
-    STATUS = [
-        ("En panne", "En panne"),
-        ("Encours", "Encours de dépannage"),
-        ("Rétablir", "Rétablir"),
-    ]
-    equipement = models.ForeignKey(Equipement, on_delete=models.CASCADE)
-    date_intervention=models.DateField()
-    date_defaillance=models.DateField()
-    description = models.TextField(blank=True, null=True)
-    tache_maintenance = models.TextField(blank=True, null=True)
-    responsable = models.CharField(max_length=100, blank=True, null=True)
-    status = models.CharField(max_length=100, choices=STATUS)
-    coût = models.IntegerField()
-    date_création=models.DateTimeField(auto_now_add=True)
-    date_modification=models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return "{} {}".format(self.id, self.equipement)
+        return "{} {} {}".format(self.nom, self.type_equipement, self.numero_serie)
     
 class Pièce(models.Model):
     nom=models.CharField(max_length=100)
     description = models.TextField()
     photo = models.ImageField(upload_to="image", blank=True, null=True)
     quantité_disponible = models.IntegerField()
+    fournisseur=models.CharField(max_length=100, blank=True, null=True)
     prix_unitaire = models.IntegerField()
     date_création=models.DateTimeField(auto_now_add=True)
     date_modification=models.DateTimeField(auto_now=True)
@@ -120,6 +102,46 @@ class Pièce(models.Model):
     def __str__(self):
         return self.nom
 
+class Intervention(models.Model):
+    STATUS = [
+        ("En panne", "En panne"),
+        ("Encours", "Encours de dépannage"),
+        ("Rétablir", "Rétablir"),
+    ]
+    TYPE = [
+        ("Corrective", "Intervention corrective"),
+        ("Preventive", "Intervention preventive")
+    ]
+    equipement = models.ForeignKey(Equipement, on_delete=models.CASCADE)
+    type_intervention = models.CharField(max_length=100, choices=TYPE, default="Corrective")
+    interval_intervention = models.IntegerField(default=0)
+    date_intervention=models.DateField()
+    date_defaillance=models.DateField()
+    description = models.TextField(blank=True, null=True)
+    tache_maintenance = models.TextField(blank=True, null=True)
+    action_correctives = models.TextField(blank=True, null=True)
+    causes_profondes = models.TextField(blank=True, null=True) 
+    responsable = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=100, choices=STATUS)
+    sécurité = models.TextField(blank=True, null=True)
+    coût = models.IntegerField()
+    coût_materiel = models.IntegerField(default=0)
+    coût_main_oeuvre  = models.IntegerField(default=0)
+    date_création=models.DateTimeField(auto_now_add=True)
+    date_modification=models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "{} {}".format(self.id, self.equipement)
+
+
+class Utiliser(models.Model):
+    intervention = models.ForeignKey(Intervention, on_delete=models.CASCADE)
+    piece = models.ForeignKey(Pièce, on_delete=models.CASCADE)
+    quantite_prise = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.intervention} - {self.piece}"
+        
 
 class PasswordReset(models.Model):
     utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -128,3 +150,23 @@ class PasswordReset(models.Model):
 
     def __str__(self):
         return f"Password reset for {self.user.username} at {self.date_création}"
+
+
+class Dossier(models.Model):
+    nom=models.CharField(max_length=100)
+    description = models.TextField()
+    fichier = models.FileField(upload_to="file", blank=True, null=True)
+    date_création=models.DateTimeField(auto_now_add=True)
+    date_modification=models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.nom
+
+#class Rapport(models.Model):
+    #id_rapport= models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    #piece = models.ForeignKey(Pièce, on_delete=models.CASCADE)
+    #intervention = models.ForeignKey(Intervention, on_delete=models.CASCADE)
+    #date = models.DateTimeField(auto_now_add=True)
+
+    #def __str__(self):
+        #return self.id_rapport

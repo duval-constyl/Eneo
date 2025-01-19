@@ -50,11 +50,12 @@ class CustomLoginForm(AuthenticationForm):
 class EquipementForm(forms.ModelForm):
     class Meta:
         model = Equipement
-        fields = ['centrale','nom','type_equipement','modèle','marque','puissance','fréquence','date_installation','fonction','emplacement_couplage','regleur_en_chargeur','mode_de_fonctionnement','technique_de_coupure','pouvoir_de_coupure','pression_gaz_nombre_de_pôle','courant_nominal_en_service_continu','numero_service','tension_assigne','pouvoir_de_coupure_nominal_court_circuit','pouvoir_de_fermeture_nominal_court_circuit']
-        labels = {'centrale':'Centrale','nom':'Nom','type_equipement':'Type equipement','modèle':'Modèle','marque':'Marque','puissance':'Puissance','fréquence':'Fréquence','date_installation':'Date installation','fonction':'Fonction','emplacement_couplage':'Emplacement couplage','regleur_en_chargeur':'Regleur en chargeur','mode_de_fonctionnement':'Mode de fonctionnement','technique_de_coupure':'Technique de coupure','pouvoir_de_coupure':'Pouvoir de coupure','pression_gaz_nombre_de_pôle':'Pression gaz nombre de pôle','courant_nominal_en_service_continu':'Courant nominal en service continu','numero_service':'Numero service','tension_assigne':'Tension assigne','pouvoir_de_coupure_nominal_court_circuit':'Pouvoir de coupure nominal court circuit','pouvoir_de_fermeture_nominal_court_circuit':'Pouvoir de fermeture nominal court circuit'}
+        fields = ['centrale','nom','type_equipement','numero_serie','modèle','marque','puissance','fréquence','date_installation','fonction','emplacement_couplage','regleur_en_chargeur','mode_de_fonctionnement','technique_de_coupure','pouvoir_de_coupure','pression_gaz_nombre_de_pôle','courant_nominal_en_service_continu','numero_service','tension_assigne','pouvoir_de_coupure_nominal_court_circuit','pouvoir_de_fermeture_nominal_court_circuit']
+        labels = {'centrale':'Centrale','nom':'Nom','type_equipement':'Type equipement','numero_serie':'Numero serie','modèle':'Modèle','marque':'Marque','puissance':'Puissance','fréquence':'Fréquence','date_installation':'Date installation','fonction':'Fonction','emplacement_couplage':'Emplacement couplage','regleur_en_chargeur':'Regleur en chargeur','mode_de_fonctionnement':'Mode de fonctionnement','technique_de_coupure':'Technique de coupure','pouvoir_de_coupure':'Pouvoir de coupure','pression_gaz_nombre_de_pôle':'Pression gaz nombre de pôle','courant_nominal_en_service_continu':'Courant nominal en service continu','numero_service':'Numero service','tension_assigne':'Tension assigne','pouvoir_de_coupure_nominal_court_circuit':'Pouvoir de coupure nominal court circuit','pouvoir_de_fermeture_nominal_court_circuit':'Pouvoir de fermeture nominal court circuit'}
         widgets = {'centrale': forms.Select(attrs={'class':'form-control'}),
                    'nom': forms.TextInput(attrs={'class':'form-control'}),
                    'type_equipement': forms.Select(attrs={'class':'form-control'}),
+                   'numero_serie': forms.TextInput(attrs={'class':'form-control'}),
                    'modèle': forms.TextInput(attrs={'class':'form-control'}),
                    'marque': forms.TextInput(attrs={'class':'form-control'}),
                    'puissance': forms.TextInput(attrs={'class':'form-control'}),
@@ -77,15 +78,22 @@ class EquipementForm(forms.ModelForm):
 class InterventionForm(forms.ModelForm):
     class Meta:
         model = Intervention
-        fields = ['equipement','date_intervention','date_defaillance','description','tache_maintenance','responsable','status','coût']
-        labels = {'equipement':'Equipement','date_intervention':'Date intervention','date_defaillance':'Date defaillance','description':'Description','tache_maintenance':'Tache maintenance','responsable':'Responsable','status':'Status','coût':'Coût'}
+        fields = ['equipement','type_intervention','date_intervention','date_defaillance','interval_intervention','description','action_correctives','causes_profondes','tache_maintenance','responsable','status','sécurité','coût','coût_materiel','coût_main_oeuvre']
+        labels = {'equipement':'Equipement','type_intervention':'Type intervention','date_intervention':'Date intervention','date_defaillance':'Date defaillance','interval_intervention':'Interval intervention','description':'Description','action_correctives':'Action Correctives','causes_profondes':'Causes Profondes','tache_maintenance':'Tache maintenance','responsable':'Responsable','status':'Status','sécurité':'Sécurité','coût_materiel':'Coût Materiel','coût_main_oeuvre':'Coût Main_oeuvre','coût':'Coût Total'}
         widgets = {'equipement': forms.Select(attrs={'class':'form-control'}),
+                   'type_intervention': forms.Select(attrs={'class':'form-control'}),
                    'date_intervention': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
                    'date_defaillance': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
+                   'interval_intervention': forms.TextInput(attrs={'class':'form-control'}),
                    'description': forms.Textarea(attrs={'class':'form-control'}),
+                   'action_correctives': forms.Textarea(attrs={'class':'form-control'}),
+                   'causes_profondes': forms.Textarea(attrs={'class':'form-control'}),
                    'tache_maintenance': forms.Textarea(attrs={'class':'form-control'}),
                    'responsable': forms.TextInput(attrs={'class':'form-control'}),
                    'status': forms.Select(attrs={'class':'form-control'}),
+                   'sécurité': forms.Textarea(attrs={'class':'form-control'}),
+                   'coût_materiel': forms.TextInput(attrs={'class':'form-control'}),
+                   'coût_main_oeuvre': forms.TextInput(attrs={'class':'form-control'}),
                    'coût': forms.TextInput(attrs={'class':'form-control'}),
                     }
         
@@ -93,11 +101,31 @@ class InterventionForm(forms.ModelForm):
 class PieceForm(forms.ModelForm):
     class Meta:
         model = Pièce
-        fields = ['nom','description','photo','quantité_disponible','prix_unitaire']
-        labels = {'nom':'Nom','description':'Description','photo':'Photo','quantité_disponible':'Quantité disponible','prix_unitaire':'Prix unitaire'}
+        fields = ['nom','description','photo','fournisseur','quantité_disponible','prix_unitaire']
+        labels = {'nom':'Nom','description':'Description','photo':'Photo','fournisseur':'Fournisseur','quantité_disponible':'Quantité disponible','prix_unitaire':'Prix unitaire'}
         widgets = {'nom': forms.TextInput(attrs={'class':'form-control'}),
                    'description': forms.Textarea(attrs={'class':'form-control'}),
                    'photo': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
-                   'quantité_disponible': forms.TextInput(attrs={'class':'form-control'}),
+                   'fournisseur': forms.TextInput(attrs={'class':'form-control'}),
+                   'quantité_disponible': forms.NumberInput(attrs={'class':'form-control'}),
                    'prix_unitaire': forms.TextInput(attrs={'class':'form-control'}),
                     }
+
+class UtiliserPieceForm(forms.ModelForm):
+    class Meta:
+        model = Utiliser
+        fields = ['piece', 'quantite_prise']
+        widgets = {
+            'piece': forms.Select(attrs={'class':'form-control'}),
+            'quantite_prise': forms.NumberInput(attrs={'class':'form-control'}),
+        } 
+
+class DossierForm(forms.ModelForm):
+    class Meta:
+        model = Dossier
+        fields = ['nom','description','fichier']
+        labels = {'nom':'Nom','description':'Description','fichier':'Fichier'}
+        widgets = {'nom': forms.TextInput(attrs={'class':'form-control'}),
+                   'description': forms.Textarea(attrs={'class':'form-control'}),
+                   'fichier': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'file/*'}),
+                }   

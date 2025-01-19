@@ -17,6 +17,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils import timezone
 from django.contrib.auth import login, get_user_model
+from django.db.models import Prefetch
 
 
 @login_required
@@ -423,14 +424,44 @@ class DeletePiece(LoginRequiredMixin, DeleteView):
     
     def get_object(self, queryset=None):
         return Pièce.objects.get(pk=self.kwargs['pk'])
+    
+def gestion_pieces(request):
+
+    if request.method == 'POST':
+        form = UtiliserPieceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('liste_interventions')
+    else:
+        form = UtiliserPieceForm()
+
+    return render(request, 'pages/piece/gestion_pieces.html', {'form': form})
 
 
 # Module Planification
+# Modules Equipement
 @login_required
 def planification(request):
-    piece = Pièce.objects.all()
-    context = {"liste_piece" : piece}
+    User = get_user_model()
+    user = request.user
+    
+    # Filtrer les équipements basés sur la section de l'utilisateur
+    if user.section == 'DISJONCTEUR':
+        equipements = Equipement.objects.filter(type_equipement='Disjoncteur')
+    elif user.section == 'TRANSFORMATEUR':
+        equipements = Equipement.objects.filter(type_equipement='Transformateur')
+    else:
+        equipements = Equipement.objects.all()
+    
+    # Grouper les équipements par centrale
+    centrales = Centrale.objects.prefetch_related(Prefetch('equipement_set', queryset=equipements, to_attr='filtered_equipements'))
+    
+    context = {
+        "centrales": centrales
+    }
+    
     return render(request, "pages/planification/planification.html", context)
+
 
 @login_required
 def detail_planification(request, id_planification):
@@ -473,3 +504,54 @@ class DeletePlanification(LoginRequiredMixin, DeleteView):
     
     def get_object(self, queryset=None):
         return Pièce.objects.get(pk=self.kwargs['pk'])
+
+
+# Module Dossier de réchange
+@login_required
+def dossier(request):
+    dossier = Dossier.objects.all()
+    context = {"liste_dossier" : dossier}
+    return render(request, "pages/dossier/dossier.html", context)
+
+@login_required
+def detail_dossier(request, id_dossier):
+    detail_dossier = Dossier.objects.get(id = id_dossier)
+    context = {"dossier" : detail_dossier}
+    return render(request, "pages/dossier/detail.html", context)
+
+class AddDossier(LoginRequiredMixin, CreateView):
+    model = Dossier
+    form_class = DossierForm
+    template_name = "pages/dossier/add.html"
+
+    def get_success_url(self):
+        return reverse_lazy('dossier') 
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        self.object = form.save()
+        form = self.get_form()
+        form = DossierForm()
+        return response
+ 
+class UpdateDossier(LoginRequiredMixin, UpdateView):
+    model = Dossier
+    form_class = DossierForm
+    template_name = "pages/dossier/update.html"
+
+    def get_success_url(self):
+        return HttpResponse(reverse('dossier'))
+    
+    def get_object(self, queryset=None):
+        return Dossier.objects.get(pk=self.kwargs['pk'])
+
+class DeleteDossier(LoginRequiredMixin, DeleteView):
+    model = Dossier
+    template_name = "pages/dossier/delete.html"
+
+    def get_success_url(self):
+        return HttpResponse(reverse('dossier'))
+    
+    def get_object(self, queryset=None):
+        return Dossier.objects.get(pk=self.kwargs['pk'])
+    

@@ -22,7 +22,7 @@
             <a class="nav-link {% if request.resolver_match.url_name == 'planification' %}active{% endif %}" href="{% url 'planification' %}">Planification</a>
           </li>
           <li class="nav-item px-2">
-            <a class="nav-link" href="#">Rapport</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'dossier' %}active{% endif %}" href="{% url 'dossier' %}" href="#">Dossier Tech.</a>
           </li>
           <!-- <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

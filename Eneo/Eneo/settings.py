@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'eneo_pages',
     'import_export',
-    'django_htmx'
+    'django_htmx',
+    'django_elasticsearch_dsl',
 ]
 
 MIDDLEWARE = [
@@ -67,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'eneo_pages.context_processor.piece_rechange',
             ],
         },
     },
@@ -82,6 +84,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://localhost:9200'
     }
 }
 
@@ -141,3 +149,6 @@ EMAIL_HOST_PASSWORD = 'Sembaba10'
 
 # Custom User model
 AUTH_USER_MODEL = 'eneo_pages.User'
+
+#Iframe
+X_FRAME_OPTIONS = 'SAMEORIGIN'

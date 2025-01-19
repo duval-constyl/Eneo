@@ -17,6 +17,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- MDB -->
     <link rel="stylesheet" href="{% static 'css/mdb.min.css' %}" />
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
     <style>
       /* Apply transition for smooth scaling */
       /*.hover-image {
@@ -59,6 +64,24 @@
     </div>
 
     <script>
+      function openFullscreen(url) {
+        event.preventDefault();
+        window.open(url, '_blank', 'fullscreen=yes');
+      }
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var accordions = document.querySelectorAll('.accordion');
+        accordions.forEach(function(accordion) {
+          new mdb.Collapse(accordion, {
+            toggle: false
+          });
+        });
+      });
+    </script>
+
+    <script>
       function toggleSubmitButton() {
           const fileInput = document.getElementById('file');
           const submitButton = document.getElementById('submit-button');
@@ -68,6 +91,7 @@
     </script>
 
     {% include "../base/footer.html" %}
+
     <!-- MDB -->
     <script src="https://unpkg.com/htmx.org@2.0.3"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
@@ -79,6 +103,22 @@
     <!-- Include your jQuery UI and datepicker scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+    <script>
+      // Initialize DataTable
+      $(document).ready(function() {
+          $('#myTable').DataTable({
+              "paging": true,
+              "pageLength": 10,
+              "searching": false, // Disable search input
+              "ordering": true,
+              "scrollCollapse": true,
+              "info": true,
+              "responsive": true
+          });
+      });
+    </script>
   </body>
 </html>

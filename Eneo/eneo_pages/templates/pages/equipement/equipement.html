@@ -8,12 +8,13 @@
     {% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Equipement</a>' button2='<a href="'|add:ajouter_equipement_url|add:'" type="button" class="btn btn-success me-3">Ajouter un équipement</a>' button='<a href="#" type="button" class="btn btn-primary me-3" data-mdb-ripple-init data-mdb-modal-init data-mdb-target="#exampleModal" >Importer les données</a>' %}
     {% include "../../base/import.html" %}
     <div class="p-3 vh-100">
-        <table class="table table-hover table-bordered border-primary table-responsive">
+        <table class="table table-hover table-bordered border-primary table-responsive" id="myTable">
             <thead class="table-dark">
               <tr>
                 <th scope="col">Centrale</th>
                 <th scope="col">Nom</th>
                 <th scope="col">Type d'équipement</th>
+                <th scope="col">Numero serie</th>
                 <th scope="col">Modèle</th>
                 <th scope="col">Marque</th>
                 <th scope="col">Fréquence</th>
@@ -30,6 +31,7 @@
                         <th>{{equipement.centrale}}</th>
                         <td>{{equipement.nom}}</td>
                         <td>{{equipement.type_equipement}}</td>
+                        <td>{{equipement.numero_serie}}</td>
                         <td>{{equipement.modèle}}</td>
                         <td>{{equipement.marque}}</td>
                         <td>{{equipement.fréquence}}</td>
