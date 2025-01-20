@@ -53,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
+    'django_auto_logout.middleware.auto_logout',
 ]
 
 ROOT_URLCONF = 'Eneo.urls'
@@ -69,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'eneo_pages.context_processor.piece_rechange',
+                'django_auto_logout.context_processors.auto_logout_client',
             ],
         },
     },
@@ -152,3 +154,10 @@ AUTH_USER_MODEL = 'eneo_pages.User'
 
 #Iframe
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Automatically logOut
+AUTO_LOGOUT = {
+    'IDLE_TIME': 600,
+    'REDIRECT_TO_LOGIN_IMMEDIATELY': True,
+    'MESSAGE': 'Votre session a expiré, veuillez vous connecter à nouveau',
+}

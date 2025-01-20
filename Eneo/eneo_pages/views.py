@@ -18,6 +18,10 @@ from django.core.mail import EmailMessage
 from django.utils import timezone
 from django.contrib.auth import login, get_user_model
 from django.db.models import Prefetch
+from django. shortcuts import render
+from .documents import *
+from django.db.models import Q
+from elasticsearch_dsl import Q as ESQ
 
 
 @login_required
@@ -213,20 +217,49 @@ def ResetPassword(request, reset_id):
     return render(request, 'auth/reset_password.html')
 
 
+
 # Modules Equipement
 @login_required
 def equipement(request):
-    User = get_user_model()  # Get the custom user model
-    user = request.user  # Get the currently logged-in user
-    # Filter equipment based on user section
-    if user.section == 'DISJONCTEUR':
-        liste_equipement = Equipement.objects.filter(type_equipement='Disjoncteur')
-    elif user.section == 'TRANSFORMATEUR':
-        liste_equipement = Equipement.objects.filter(type_equipement='Transformateur')
-    else:
-        liste_equipement = Equipement.objects.all()
+    context = {}
+    q = request.GET.get("q")
+    
+    User = get_user_model()
+    user = request.user
 
-    context = {"liste_equipement" : liste_equipement}
+    # Filtrer les équipements en fonction de la section de l'utilisateur
+    if user.section == 'DISJONCTEUR':
+        base_queryset = Equipement.objects.filter(type_equipement='Disjoncteur')
+    elif user.section == 'TRANSFORMATEUR':
+        base_queryset = Equipement.objects.filter(type_equipement='Transformateur')
+    else:
+        base_queryset = Equipement.objects.all()
+
+    if q:
+        # Recherche Elasticsearch
+        s = EquipementDocument.search().query(
+            ESQ("multi_match", 
+                query=q, 
+                fields=['nom', 'type_equipement', 'numero_serie', 'modèle', 'marque']
+            )
+        )
+        es_results = s.to_queryset()
+        
+        # Recherche Django ORM
+        db_results = base_queryset.filter(
+            Q(nom__icontains=q) | 
+            Q(type_equipement__icontains=q) | 
+            Q(numero_serie__icontains=q) | 
+            Q(modèle__icontains=q) | 
+            Q(marque__icontains=q)
+        )
+        
+        # Combiner les résultats
+        liste_equipement = (es_results & base_queryset) | db_results
+    else:
+        liste_equipement = base_queryset
+
+    context["liste_equipement"] = liste_equipement.distinct()
     
     return render(request, "pages/equipement/equipement.html", context)
 
@@ -316,18 +349,47 @@ def importEquipement(request):
 # Module Intervention
 @login_required
 def intervention(request):
+    context = {}
+    q = request.GET.get("q")
+
     User = get_user_model()  # Get the custom user model
     user = request.user  # Get the currently logged-in user
     
     # Filter equipment based on user section
     if user.section == 'DISJONCTEUR':
-        intervention = Intervention.objects.filter(equipement__type_equipement='Disjoncteur')
+        base_queryset = Intervention.objects.filter(equipement__type_equipement='Disjoncteur')
     elif user.section == 'TRANSFORMATEUR':
-        intervention = Intervention.objects.filter(equipement__type_equipement='Transformateur')
+        base_queryset = Intervention.objects.filter(equipement__type_equipement='Transformateur')
     else:
-        intervention = Intervention.objects.all()
+        base_queryset = Intervention.objects.all()
 
-    context = {"liste_intervention" : intervention}
+    if q:
+        # Recherche Elasticsearch
+        s = InterventionDocument.search().query(
+            ESQ("multi_match", 
+                query=q, 
+                fields=['type_intervention', 'responsable', 'status', 'description', 'tache_maintenance', 'action_correctives', 'causes_profondes']
+            )
+        )
+        es_results = s.to_queryset()
+        
+        # Recherche Django ORM
+        db_results = base_queryset.filter(
+            Q(type_intervention__icontains=q) | 
+            Q(responsable__icontains=q) | 
+            Q(status__icontains=q) | 
+            Q(description__icontains=q) | 
+            Q(tache_maintenance__icontains=q) |
+            Q(action_correctives__icontains=q) | 
+            Q(causes_profondes__icontains=q) 
+        )
+        
+        # Combiner les résultats
+        liste_intervention = (es_results & base_queryset) | db_results
+    else:
+        liste_intervention = base_queryset
+    
+    context["liste_intervention"] = liste_intervention.distinct()
     return render(request, "pages/intervention/intervention.html", context)
 
 @login_required
@@ -379,8 +441,33 @@ class DeleteIntervention(LoginRequiredMixin, DeleteView):
 # Module Pièce de réchange
 @login_required
 def piece(request):
-    piece = Pièce.objects.all()
-    context = {"liste_piece" : piece}
+    context = {}
+    q = request.GET.get("q")
+    base_queryset = Pièce.objects.all()
+
+    if q:
+        # Recherche Elasticsearch
+        s = PièceDocument.search().query(
+            ESQ("multi_match", 
+                query=q, 
+                fields=['nom', 'description', 'fournisseur']
+            )
+        )
+        es_results = s.to_queryset()
+        
+        # Recherche Django ORM
+        db_results = base_queryset.filter(
+            Q(nom__icontains=q) | 
+            Q(description__icontains=q) | 
+            Q(fournisseur__icontains=q) 
+        )
+        
+        # Combiner les résultats
+        liste_piece = (es_results & base_queryset) | db_results
+    else:
+        liste_piece = base_queryset
+
+    context["liste_piece"] = liste_piece.distinct()
     return render(request, "pages/piece/piece.html", context)
 
 @login_required
@@ -444,24 +531,49 @@ def gestion_pieces(request):
 def planification(request):
     User = get_user_model()
     user = request.user
-    
+    q = request.GET.get("q")
+
     # Filtrer les équipements basés sur la section de l'utilisateur
     if user.section == 'DISJONCTEUR':
-        equipements = Equipement.objects.filter(type_equipement='Disjoncteur')
+        base_queryset = Equipement.objects.filter(type_equipement='Disjoncteur')
     elif user.section == 'TRANSFORMATEUR':
-        equipements = Equipement.objects.filter(type_equipement='Transformateur')
+        base_queryset = Equipement.objects.filter(type_equipement='Transformateur')
     else:
-        equipements = Equipement.objects.all()
-    
-    # Grouper les équipements par centrale
-    centrales = Centrale.objects.prefetch_related(Prefetch('equipement_set', queryset=equipements, to_attr='filtered_equipements'))
-    
+        base_queryset = Equipement.objects.all()
+
+    if q:
+        # Recherche dans les centrales
+        centrales = Centrale.objects.filter(
+            Q(nom__icontains=q) | 
+            Q(localisation__icontains=q)
+        )
+        
+        # Recherche dans les équipements
+        equipements_search = base_queryset.filter(
+            Q(nom__icontains=q) | 
+            Q(type_equipement__icontains=q) | 
+            Q(numero_serie__icontains=q) | 
+            Q(modèle__icontains=q) | 
+            Q(marque__icontains=q)
+        )
+        
+        # Ajouter les centrales des équipements trouvés
+        centrales |= Centrale.objects.filter(equipement__in=equipements_search)
+        
+        # Précharger tous les équipements pour les centrales trouvées
+        centrales = centrales.prefetch_related(
+            Prefetch('equipement_set', queryset=base_queryset, to_attr='filtered_equipements')
+            )
+    else:
+        centrales = Centrale.objects.prefetch_related(
+            Prefetch('equipement_set', queryset=base_queryset, to_attr='filtered_equipements')
+        )
+
     context = {
         "centrales": centrales
     }
-    
-    return render(request, "pages/planification/planification.html", context)
 
+    return render(request, "pages/planification/planification.html", context)
 
 @login_required
 def detail_planification(request, id_planification):
@@ -509,8 +621,32 @@ class DeletePlanification(LoginRequiredMixin, DeleteView):
 # Module Dossier de réchange
 @login_required
 def dossier(request):
-    dossier = Dossier.objects.all()
-    context = {"liste_dossier" : dossier}
+    context = {}
+    q = request.GET.get("q")
+    base_queryset = Dossier.objects.all()
+
+    if q:
+        # Recherche Elasticsearch
+        s = DossierDocument.search().query(
+            ESQ("multi_match", 
+                query=q, 
+                fields=['nom', 'description']
+            )
+        )
+        es_results = s.to_queryset()
+        
+        # Recherche Django ORM
+        db_results = base_queryset.filter(
+            Q(nom__icontains=q) | 
+            Q(description__icontains=q) 
+        )
+        
+        # Combiner les résultats
+        liste_dossier = (es_results & base_queryset) | db_results
+    else:
+        liste_dossier = base_queryset
+
+    context["liste_dossier"] = liste_dossier.distinct()
     return render(request, "pages/dossier/dossier.html", context)
 
 @login_required

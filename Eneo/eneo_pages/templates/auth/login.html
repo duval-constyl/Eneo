@@ -1,6 +1,11 @@
 {% extends "../auth/base.html" %}
 
 {% block body %}
+    {% for message in messages %}
+    <div class="message text-center alert alert-info {{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
     <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
         <div class="col-md-4">
             <div class="border rounded p-4 shadow">
