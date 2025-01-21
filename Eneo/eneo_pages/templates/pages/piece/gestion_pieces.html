@@ -6,25 +6,26 @@
     </div>
     <div class="modal-body">
       <ul class="list-group list-group-light">
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div>
-            <div class="fw-bold">Marteau</div>
-            <div class="text-muted pe-2">Prix <span>15000 Fcfa</span></div>
-            <div class="row align-items-center">
-              <div class="col-md-3 pe-2">
-                <h6 class="mb-0 text-muted"> Quantité</h6>
-              </div>
-              <div class="col-md-9 pe-5">
-                <input type="text" class="form-control form-control" />
-              </div>
-            </div>
+        {% for item in cart_items %}
+        <li class="list-group-item">
+          <div class="fw-bold mb-2">{{ item.nom }}</div>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted">Prix : {{ item.prix }} Fcfa</div>
+            <div class="text-muted">Qté : {{ item.quantite }}</div>
+            <a href="{% url 'remove_from_cart' item.id %}" class="badge rounded-pill badge-danger">Retirer</a>
           </div>
-          <a href="" class="badge rounded-pill badge-danger">Rétirer</a>
         </li>
+        {% empty %}
+        <p>Votre panier est vide</p>
+        {% endfor %}
       </ul>
-      <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="fw-bold">Total</div>
-        <div class="text-muted">30000 Fcfa</div>
+        <div class="text-muted">{{ total_price }} Fcfa</div>
       </div>
+      <form method="post" action="{% url 'confirm_cart' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Confirmer la commande</button>
+      </form>    
     </div>
   </div>

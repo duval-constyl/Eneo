@@ -35,7 +35,11 @@ urlpatterns = [
     path("piece/ajouter", views.AddPiece.as_view(), name="ajouter_piece"),
     path("piece/update/<int:pk>", views.UpdatePiece.as_view(), name="update_piece"),
     path("piece/delete/<int:pk>", views.DeletePiece.as_view(), name="delete_piece"),
-    path("piece/utiliser", views.gestion_pieces, name="gestion_pieces"),
+    path("piece/cart", views.view_cart, name="view_cart"),
+    path("add/<int:piece_id>/", views.add_to_cart, name="add_to_cart"),
+    path('get_cart_quantity/', views.get_cart_quantity, name='get_cart_quantity'),
+    path("remove/<int:piece_id>/", views.remove_from_cart, name="remove_from_cart"),
+    path('confirm_cart/', views.confirm_cart, name='confirm_cart'),
 
     # Module Planification
     path("planification", views.planification, name="planification"),

@@ -75,7 +75,7 @@ class EquipementForm(forms.ModelForm):
                    'pouvoir_de_fermeture_nominal_court_circuit': forms.TextInput(attrs={'class':'form-control'}),}
 
 
-class InterventionForm(forms.ModelForm):
+class InterventionUpdateForm(forms.ModelForm):
     class Meta:
         model = Intervention
         fields = ['equipement','type_intervention','date_intervention','date_defaillance','interval_intervention','description','action_correctives','causes_profondes','tache_maintenance','responsable','status','sécurité','coût','coût_materiel','coût_main_oeuvre']
@@ -95,6 +95,22 @@ class InterventionForm(forms.ModelForm):
                    'coût_materiel': forms.TextInput(attrs={'class':'form-control'}),
                    'coût_main_oeuvre': forms.TextInput(attrs={'class':'form-control'}),
                    'coût': forms.TextInput(attrs={'class':'form-control'}),
+                    }
+        
+class InterventionForm(forms.ModelForm):
+    class Meta:
+        model = Intervention
+        fields = ['equipement','type_intervention','date_intervention','date_defaillance','interval_intervention','description','causes_profondes','responsable','status']
+        labels = {'equipement':'Equipement','type_intervention':'Type intervention','date_intervention':'Date intervention','date_defaillance':'Date defaillance','interval_intervention':'Interval intervention','description':'Description','causes_profondes':'Causes Profondes','responsable':'Responsable','status':'Status'}
+        widgets = {'equipement': forms.Select(attrs={'class':'form-control'}),
+                   'type_intervention': forms.Select(attrs={'class':'form-control', 'id':'type_intervention'}),
+                   'date_intervention': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
+                   'date_defaillance': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
+                   'interval_intervention': forms.TextInput(attrs={'class':'form-control', 'id':'interval_intervention'}),
+                   'description': forms.Textarea(attrs={'class':'form-control'}),
+                   'causes_profondes': forms.Textarea(attrs={'class':'form-control'}),
+                   'responsable': forms.TextInput(attrs={'class':'form-control'}),
+                   'status': forms.Select(attrs={'class':'form-control'})
                     }
         
 

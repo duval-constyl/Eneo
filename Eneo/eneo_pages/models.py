@@ -135,12 +135,13 @@ class Intervention(models.Model):
 
 
 class Utiliser(models.Model):
-    intervention = models.ForeignKey(Intervention, on_delete=models.CASCADE)
     piece = models.ForeignKey(Pièce, on_delete=models.CASCADE)
     quantite_prise = models.IntegerField(default=0)
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_création = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.intervention} - {self.piece}"
+        return f'{self.quantite_prise} x {self.piece.nom}'
         
 
 class PasswordReset(models.Model):

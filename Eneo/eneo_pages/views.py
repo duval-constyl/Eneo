@@ -1,5 +1,5 @@
 from datetime import datetime
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
@@ -22,6 +22,9 @@ from django. shortcuts import render
 from .documents import *
 from django.db.models import Q
 from elasticsearch_dsl import Q as ESQ
+from django.db.models import Sum
+from django.db import transaction
+from django.shortcuts import get_object_or_404
 
 
 @login_required
@@ -418,7 +421,7 @@ class AddIntervention(LoginRequiredMixin, CreateView):
 
 class UpdateIntervention(LoginRequiredMixin, UpdateView):
     model = Intervention
-    form_class = InterventionForm
+    form_class = InterventionUpdateForm
     template_name = "pages/intervention/update.html"
 
     def get_success_url(self):
@@ -511,18 +514,72 @@ class DeletePiece(LoginRequiredMixin, DeleteView):
     
     def get_object(self, queryset=None):
         return Pièce.objects.get(pk=self.kwargs['pk'])
+
+def view_cart(request):
+    cart = request.session.get('cart', {})
+    cart_items = [{'id': k, 'nom': v['nom'], 'quantite': v['quantite'], 'prix': v['prix']} for k, v in cart.items()]
+    total_price = sum(item['quantite'] * item['prix'] for item in cart_items)
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price,
+    }
+    return render(request, 'pages/piece/gestion_pieces.html', context)
+
+def add_to_cart(request, piece_id):
+    piece = Pièce.objects.get(id=piece_id)
+    cart = request.session.get('cart', {})
     
-def gestion_pieces(request):
-
-    if request.method == 'POST':
-        form = UtiliserPieceForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('liste_interventions')
+    if str(piece_id) in cart:
+        cart[str(piece_id)]['quantite'] += 1
     else:
-        form = UtiliserPieceForm()
+        cart[str(piece_id)] = {'quantite': 1, 'nom': piece.nom, 'prix': float(piece.prix_unitaire)}
+    
+    request.session['cart'] = cart
+    total_quantity = sum(item['quantite'] for item in cart.values())
+    
+    return redirect('piece') 
 
-    return render(request, 'pages/piece/gestion_pieces.html', {'form': form})
+def get_cart_quantity(request):
+    cart = request.session.get('cart', {})
+    total_quantity = sum(item['quantite'] for item in cart.values())
+    return JsonResponse({'quantity': total_quantity})
+
+def remove_from_cart(request, piece_id):
+    cart = request.session.get('cart', {})
+    if str(piece_id) in cart:
+        del cart[str(piece_id)]
+        request.session['cart'] = cart
+    return redirect('piece')
+
+@transaction.atomic
+def confirm_cart(request):
+    if request.method == 'POST':
+        cart = request.session.get('cart', {})
+        for piece_id, item in cart.items():
+            piece = get_object_or_404(Pièce, id=piece_id)
+            quantite_demandee = item['quantite']
+            
+            # Vérifier si la quantité disponible est suffisante
+            if piece.quantité_disponible >= quantite_demandee:
+                # Créer l'utilisation
+                Utiliser.objects.create(
+                    piece=piece,
+                    utilisateur=request.user,
+                    quantite_prise=quantite_demandee
+                )
+                
+                # Décrémenter la quantité disponible
+                piece.quantité_disponible -= quantite_demandee
+                piece.save()
+            else:
+                messages.error(request, f"Quantité insuffisante pour {piece.nom}. Disponible: {piece.quantité_disponible}")
+                return redirect('view_cart')
+        
+        # Vider le panier
+        request.session['cart'] = {}
+        messages.success(request, 'Votre commande a été enregistrée avec succès.')
+        return redirect('piece')
+    return redirect('view_cart')
 
 
 # Module Planification

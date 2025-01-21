@@ -64,6 +64,38 @@
     </div>
 
     <script>
+      document.body.addEventListener('htmx:afterSwap', function(event) {
+        if (event.detail.target.id === 'dialog') {
+          fetch("{% url 'get_cart_quantity' %}")  // Créez une vue pour renvoyer la quantité actuelle
+            .then(response => response.json())
+            .then(data => {
+              document.getElementById('cart-quantity').textContent = data.quantity;
+            });
+        }
+      });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          var typeIntervention = document.getElementById('type_intervention');
+          var intervalIntervention = document.getElementById('interval_intervention').parentNode;
+          
+          function toggleIntervalVisibility() {
+              if (typeIntervention.value === 'intervention corrective') {
+                  intervalIntervention.style.display = 'none';
+              } else {
+                  intervalIntervention.style.display = 'block';
+              }
+          }
+          
+          typeIntervention.addEventListener('change', toggleIntervalVisibility);
+          
+          // Initial check
+          toggleIntervalVisibility();
+      });
+      </script>
+
+    <script>
       function openFullscreen(url) {
         event.preventDefault();
         window.open(url, '_blank', 'fullscreen=yes');

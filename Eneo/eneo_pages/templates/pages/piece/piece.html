@@ -3,8 +3,8 @@
 
 {% block body %}
     {% url 'ajouter_piece' as ajouter_piece_url %}
-    {% url 'gestion_pieces' as gestion_pieces_url %}
-    {% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Pièce de Récharge</a>' button='<button type="button" hx-get="'|add:ajouter_piece_url|add:'" hx-target="#dialog" class="btn btn-success me-3">Ajouter une piece</button>' button2='<a data-mdb-dropdown-init class="text-reset me-3 dropdown-toggle hidden-arrow" type="button" hx-get="'|add:gestion_pieces_url|add:'"  hx-target="#dialog" hx-swap="innerHTML" data-mdb-toggle="modal" role="button" aria-expanded="false"><i class="fa-solid fa-cart-shopping"></i><span class="badge rounded-pill badge-notification bg-danger">1</span></a>' %}
+    {% url 'view_cart' as view_cart_url %}
+    {% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Pièce de Récharge</a>' button='<button type="button" hx-get="'|add:ajouter_piece_url|add:'" hx-target="#dialog" class="btn btn-success me-3">Ajouter une piece</button>' button2='<a class="text-reset me-3" type="button" hx-get="'|add:view_cart_url|add:'"  hx-target="#dialog"><i class="fa-solid fa-cart-shopping"></i><span id="cart-quantity" class="badge rounded-pill badge-notification bg-danger">{{ total_quantity }}</span></a>' %}
     <div class="container">
         <div class="row py-3">
           {% if liste_piece %}
@@ -18,7 +18,7 @@
                     <div class="card-body">
                       <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title">{{piece.nom|capfirst}}</h5>
-                        <span class="badge rounded-pill badge-success">Utiliser</span>
+                        <a class="badge rounded-pill badge-success" href="{% url 'add_to_cart' piece.id %}">Utiliser</a>
                       </div>
                       <p class="card-text text-muted">{{piece.description|truncatewords:20}}</p>
                       <ul class="list-group list-group-light">
