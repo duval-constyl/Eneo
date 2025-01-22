@@ -1,12 +1,13 @@
 {% extends "../../base/base.html" %}
 {% load static %}
+{% load custom_filter %}
 
 {% block body %}
 {% url 'ajouter_planification' as ajouter_planification_url %}
 {% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Planification</a>' button='<button type="button" hx-get="'|add:ajouter_planification_url|add:'" hx-target="#dialog" class="btn btn-success me-3">Ajouter une planification</button>' %}
 
 <!-- Buttons trigger collapse -->
-<div class="mt-2 px-5 py-2 vh-100">
+<div class="mt-2 mb-5 px-5 py-2">
   <div class="accordion" id="accordionCentrales">
     {% for centrale in centrales %}
       <div class="accordion-item">
@@ -41,121 +42,126 @@
                        aria-labelledby="headingEquipement{{equipement.id}}" 
                        data-bs-parent="#accordionEquipements{{ centrale.id }}">
                     <div class="accordion-body">
-                      <div class="table-responsive">
-                        <table class="table table-hover text-nowrap">
-                          <thead>
-                            <tr>
-                              <th scope="col"></th>
-                              <th scope="col">Jav</th>
-                              <th scope="col">Fev</th>
-                              <th scope="col">Mar</th>
-                              <th scope="col">Avr</th>
-                              <th scope="col">Mai</th>
-                              <th scope="col">Jui</th>
-                              <th scope="col">Jul</th>
-                              <th scope="col">Aou</th>
-                              <th scope="col">Sep</th>
-                              <th scope="col">Oct</th>
-                              <th scope="col">Nov</th>
-                              <th scope="col">Dev</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <th scope="row">Opération maintenance</th>
-                              <td>18,492</td>
-                              <td>228</td>
-                              <td>350</td>
-                              <td>$4,787.64</td>
-                              <td>$13.68</td>
-                            </tr>
-                            <tr>
-                              <th scope="row">Fréquence</th>
-                              <td>
-                                <span class="text-danger">
-                                  <i class="fas fa-caret-down me-1"></i><span>-48.8%%</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-success">
-                                  <i class="fas fa-caret-up me-1"></i><span>14.0%</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-success">
-                                  <i class="fas fa-caret-up me-1"></i><span>46.4%</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-success">
-                                  <i class="fas fa-caret-up me-1"></i><span>29.6%</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-danger">
-                                  <i class="fas fa-caret-down me-1"></i><span>-11.5%</span>
-                                </span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <th scope="row">Heure homme requise</th>
-                              <td>
-                                <span class="text-danger">
-                                  <i class="fas fa-caret-down me-1"></i><span>-17,654</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-success">
-                                  <i class="fas fa-caret-up me-1"></i><span>28</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-success">
-                                  <i class="fas fa-caret-up me-1"></i><span>111</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-success">
-                                  <i class="fas fa-caret-up me-1"></i><span>$1,092.72</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-danger">
-                                  <i class="fas fa-caret-down me-1"></i><span>$-1.78</span>
-                                </span>
-                              </td>
-                            </tr>
-                            <tr>
-                              <th scope="row">Liste outillage</th>
-                              <td>
-                                <span class="text-danger">
-                                  <i class="fas fa-caret-down me-1"></i><span>-17,654</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-success">
-                                  <i class="fas fa-caret-up me-1"></i><span>28</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-success">
-                                  <i class="fas fa-caret-up me-1"></i><span>111</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-success">
-                                  <i class="fas fa-caret-up me-1"></i><span>$1,092.72</span>
-                                </span>
-                              </td>
-                              <td>
-                                <span class="text-danger">
-                                  <i class="fas fa-caret-down me-1"></i><span>$-1.78</span>
-                                </span>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+                      {% for planif in equipement.planification_set.all %}
+                        <ul class="list-group">
+                          <li class="mb-2">
+                            Tâche:
+                            <ol class="description-list">
+                                {% for item in planif.tache|split_semicolon %}
+                                    {% if item %}
+                                        <li class="text-muted">{{ item|capfirst }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ol>
+                          </li>
+                          <li class="list-group-item">Fréquence: 
+                            <div class="table-responsive">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Jan</th>
+                                    <th scope="col">Fév</th>
+                                    <th scope="col">Mar</th>
+                                    <th scope="col">Avr</th>
+                                    <th scope="col">Mai</th>
+                                    <th scope="col">Juin</th>
+                                    <th scope="col">Juil</th>
+                                    <th scope="col">Aoû</th>
+                                    <th scope="col">Sep</th>
+                                    <th scope="col">Oct</th>
+                                    <th scope="col">Nov</th>
+                                    <th scope="col">Déc</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% if planif.frequence == "Journalière" %}
+                                    {% for month in "01,02,03,04,05,06,07,08,09,10,11,12"|split:"," %}
+                                      <td>
+                                        <div class="d-flex flex-column">
+                                          {% with days=month|get_days_in_month %}
+                                            {% for day in days %}
+                                              <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" value="" id="day{{ month }}{{ day }}" />
+                                                <label class="form-check-label" for="day{{ month }}{{ day }}">
+                                                  {{ day }}
+                                                </label>
+                                              </div>
+                                            {% endfor %}
+                                          {% endwith %}
+                                        </div>
+                                      </td>
+                                    {% endfor %}
+                                
+                                  {% elif planif.frequence == "Hebdomadaire" %}
+                                    <tr>
+                                      {% for month in "01,02,03,04,05,06,07,08,09,10,11,12"|split:"," %}
+                                        <td>
+                                          {% for week in "1234"|make_list %}
+                                            <div class="form-check">
+                                              <input class="form-check-input" type="checkbox" value="" id="week{{ month }}{{ week }}" />
+                                              <label class="form-check-label" for="week{{ month }}{{ week }}">{{ week }}</label>
+                                            </div>
+                                          {% endfor %}
+                                        </td>
+                                      {% endfor %}
+                                    </tr>
+                                  {% elif planif.frequence == "Mensuel" %}
+                                    <tr>
+                                      {% for month in "01,02,03,04,05,06,07,08,09,10,11,12"|split:"," %}
+                                        <td>
+                                          <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="month{{ month }}" />
+                                            <label class="form-check-label" for="month{{ month }}">{{ month }}</label>
+                                          </div>
+                                        </td>
+                                      {% endfor %}
+                                    </tr>
+                                  {% elif planif.frequence == "Annuel" %}
+                                    <tr>
+                                      {% for month in "01,02,03,04,05,06,07,08,09,10,11,12"|split:"," %}
+                                        <td>
+                                          <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="month{{ month }}" />
+                                            <label class="form-check-label" for="month{{ month }}">{{ month }}</label>
+                                          </div>
+                                        </td>
+                                      {% endfor %}
+                                    </tr>
+                                  {% endif %}
+                                </tbody>
+                              </table>
+                            </div>
+                          </li>
+                          
+                          <li class="list-group-item">Heures requises: <span class="text-muted">{{ planif.heure_homme_requise }}</span></li>
+                          <li class="mb-2">
+                            Liste outillage:
+                            <ol class="description-list">
+                                {% for item in planif.liste_outillage|split_semicolon %}
+                                    {% if item %}
+                                        <li class="text-muted">{{ item|capfirst }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ol>
+                          </li>
+                          <li class="mb-2">
+                            Liste PDR:
+                            <ol class="description-list">
+                                {% for item in planif.liste_pdr|split_semicolon %}
+                                    {% if item %}
+                                        <li class="text-muted">{{ item|capfirst }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ol>
+                          </li>
+                        </ul>
+                        <div class="d-flex justify-content-end align-items-center ms-3 mt-3">
+                          <a href="{% url 'update_planification' pk=planif.pk %}" hx-get="{% url 'update_planification' pk=planif.pk %}" hx-target="#dialog" type="button" class="btn btn-warning me-3">Modifier</a>
+                          <a href="{% url 'delete_planification' pk=planif.pk %}" hx-get="{% url 'delete_planification' pk=planif.pk %}" hx-target="#dialog" type="button" class="btn btn-danger me-3">Supprimer</a>
+                        </div>  
+                      {% empty %}
+                            <li>Aucune planification pour cet équipement.</li>
+                      {% endfor %}  
                     </div>
                   </div>
                 </div>

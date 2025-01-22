@@ -78,24 +78,54 @@ class EquipementForm(forms.ModelForm):
 class InterventionUpdateForm(forms.ModelForm):
     class Meta:
         model = Intervention
-        fields = ['equipement','type_intervention','date_intervention','date_defaillance','interval_intervention','description','action_correctives','causes_profondes','tache_maintenance','responsable','status','sécurité','coût','coût_materiel','coût_main_oeuvre']
-        labels = {'equipement':'Equipement','type_intervention':'Type intervention','date_intervention':'Date intervention','date_defaillance':'Date defaillance','interval_intervention':'Interval intervention','description':'Description','action_correctives':'Action Correctives','causes_profondes':'Causes Profondes','tache_maintenance':'Tache maintenance','responsable':'Responsable','status':'Status','sécurité':'Sécurité','coût_materiel':'Coût Materiel','coût_main_oeuvre':'Coût Main_oeuvre','coût':'Coût Total'}
-        widgets = {'equipement': forms.Select(attrs={'class':'form-control'}),
-                   'type_intervention': forms.Select(attrs={'class':'form-control'}),
-                   'date_intervention': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
-                   'date_defaillance': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
-                   'interval_intervention': forms.TextInput(attrs={'class':'form-control'}),
-                   'description': forms.Textarea(attrs={'class':'form-control'}),
-                   'action_correctives': forms.Textarea(attrs={'class':'form-control'}),
-                   'causes_profondes': forms.Textarea(attrs={'class':'form-control'}),
-                   'tache_maintenance': forms.Textarea(attrs={'class':'form-control'}),
-                   'responsable': forms.TextInput(attrs={'class':'form-control'}),
-                   'status': forms.Select(attrs={'class':'form-control'}),
-                   'sécurité': forms.Textarea(attrs={'class':'form-control'}),
-                   'coût_materiel': forms.TextInput(attrs={'class':'form-control'}),
-                   'coût_main_oeuvre': forms.TextInput(attrs={'class':'form-control'}),
-                   'coût': forms.TextInput(attrs={'class':'form-control'}),
-                    }
+        fields = ['equipement', 'type_intervention', 'date_intervention', 'date_defaillance', 'interval_intervention', 'description', 'action_correctives', 'causes_profondes', 'tache_maintenance', 'responsable', 'status', 'sécurité', 'coût', 'coût_materiel', 'coût_main_oeuvre']
+        labels = {
+            'equipement': 'Equipement',
+            'type_intervention': 'Type intervention',
+            'date_intervention': 'Date intervention',
+            'date_defaillance': 'Date defaillance',
+            'interval_intervention': 'Interval intervention',
+            'description': 'Description',
+            'action_correctives': 'Action Correctives',
+            'causes_profondes': 'Causes Profondes',
+            'tache_maintenance': 'Tache maintenance',
+            'responsable': 'Responsable',
+            'status': 'Status',
+            'sécurité': 'Sécurité',
+            'coût_materiel': 'Coût Materiel',
+            'coût_main_oeuvre': 'Coût Main_oeuvre',
+            'coût': 'Coût Total'
+        }
+        widgets = {
+            'equipement': forms.Select(attrs={'class': 'form-control'}),
+            'type_intervention': forms.Select(attrs={'class': 'form-control'}),
+            'date_intervention': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date_defaillance': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'interval_intervention': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'action_correctives': forms.Textarea(attrs={'class': 'form-control'}),
+            'causes_profondes': forms.Textarea(attrs={'class': 'form-control'}),
+            'tache_maintenance': forms.Textarea(attrs={'class': 'form-control'}),
+            'responsable': forms.TextInput(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'sécurité': forms.Textarea(attrs={'class': 'form-control'}),
+            'coût_materiel': forms.TextInput(attrs={'class': 'form-control'}),
+            'coût_main_oeuvre': forms.TextInput(attrs={'class': 'form-control'}),
+            'coût': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        self.fields['liste_piece_confirmee'] = forms.ModelChoiceField(
+            queryset=ListePieceConfirmee.objects.none(),
+            required=False,
+            label="Liste de pièces confirmée",
+            widget=forms.Select(attrs={'class': 'form-control'})
+        )
+        if user:
+            self.fields['liste_piece_confirmee'].queryset = ListePieceConfirmee.objects.filter(utilisateur=user)
+
         
 class InterventionForm(forms.ModelForm):
     class Meta:
@@ -145,3 +175,17 @@ class DossierForm(forms.ModelForm):
                    'description': forms.Textarea(attrs={'class':'form-control'}),
                    'fichier': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'file/*'}),
                 }   
+        
+class PlanificationForm(forms.ModelForm):
+    class Meta:
+        model = Planification
+        fields = ['equipement', 'tache', 'frequence', 'heure_homme_requise', 'liste_outillage', 'liste_pdr']
+        labels = {'equipement':'Equipement','tache':'Tache','frequence':'Fréquence', 'heure_homme_requise':'Heure homme requise', 'liste_outillage':'Liste outillage', 'liste_pdr':'Liste PDR'}
+        widgets = {
+            'equipement': forms.Select(attrs={'class':'form-control'}),
+            'tache': forms.Textarea(attrs={'class': 'form-control','rows': 3}),
+            'frequence': forms.Select(attrs={'class':'form-control'}),
+            'heure_homme_requise': forms.NumberInput(attrs={'class':'form-control'}),
+            'liste_outillage': forms.Textarea(attrs={'class': 'form-control','rows': 3}),
+            'liste_pdr': forms.Textarea(attrs={'class': 'form-control','rows': 3}),
+        }

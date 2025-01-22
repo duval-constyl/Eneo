@@ -1,20 +1,16 @@
-<!-- Button trigger modal -->
+  <!-- Button trigger modal -->
   <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Supprimer</h5>
-          <button type="button" class="btn-close" data-mdb-ripple-init data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form action="{{ action }}" method="post"> 
-            {% csrf_token %} 
-            <p>Voulez-vous supprimer <strong>{{ detail }} <span>{{ nom }}</span></strong> ?</p>
-            <input type="submit" value="Supprimer" class="btn btn-danger">
-            <input value="Fermer" class="btn btn-secondary" data-mdb-ripple-init data-mdb-dismiss="modal">
-          </form>
-        </div>
-      </div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="exampleModalLabel">Supprimer cette planification</h5>
+      <button type="button" class="btn-close" data-mdb-ripple-init data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <form hx-post="{{ request.path }}" action="" method="post">
+          {% csrf_token %}
+          <p>Voulez-vous supprimer les planifications de {{ equipement.nom }} ?</p>
+          <button type="submit" class="btn btn-danger">Supprimer</button>
+          <button type="button" data-bs-dismiss="modal" class="btn btn-info">Annuler</button>
+        </form>
     </div>
   </div>

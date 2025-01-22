@@ -5,7 +5,7 @@
       <h5 class="modal-title">Ajouter un élément</h5>
     </div>
     <div class="modal-body">
-      <form action="" enctype="multipart/form-data"  method="post"> 
+      <form action="{% url 'ajouter_planification' %}" enctype="multipart/form-data"  method="post"> 
         {% csrf_token %} 
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Ajouter</button>

@@ -142,6 +142,18 @@ class Utiliser(models.Model):
 
     def __str__(self):
         return f'{self.quantite_prise} x {self.piece.nom}'
+    
+class ListePieceConfirmee(models.Model):
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Liste de {self.utilisateur} du {self.date_creation}"
+
+class PieceConfirmee(models.Model):
+    liste = models.ForeignKey(ListePieceConfirmee, on_delete=models.CASCADE, related_name='pieces')
+    piece = models.ForeignKey('Pièce', on_delete=models.CASCADE)
+    quantite = models.IntegerField()
         
 
 class PasswordReset(models.Model):
@@ -163,11 +175,22 @@ class Dossier(models.Model):
     def __str__(self):
         return self.nom
 
-#class Rapport(models.Model):
-    #id_rapport= models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    #piece = models.ForeignKey(Pièce, on_delete=models.CASCADE)
-    #intervention = models.ForeignKey(Intervention, on_delete=models.CASCADE)
-    #date = models.DateTimeField(auto_now_add=True)
 
-    #def __str__(self):
-        #return self.id_rapport
+class Planification(models.Model):
+    FREQUENCE = [
+        ("Journalière", "Journalière"),
+        ("Hebdomadaire", "Hebdomadaire"),
+        ("Mensuel", "Mensuel"),
+        ("Annuel", "Annuel"),
+    ]
+    equipement = models.ForeignKey(Equipement, on_delete=models.CASCADE)
+    tache = models.TextField()
+    frequence = models.CharField(max_length=100, choices=FREQUENCE, default="Annuel")
+    heure_homme_requise = models.IntegerField(default=0)
+    liste_outillage = models.TextField()
+    liste_pdr = models.TextField()
+    date_création=models.DateTimeField(auto_now_add=True)
+    date_modification=models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Planif {self.equipement}"

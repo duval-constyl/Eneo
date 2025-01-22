@@ -43,10 +43,10 @@ urlpatterns = [
 
     # Module Planification
     path("planification", views.planification, name="planification"),
-    path("planification/<int:id_planification>", views.detail_planification, name="detail_planification"),
+    #path("planification/<int:id_planification>", views.detail_planification, name="detail_planification"),
     path("planification/ajouter", views.AddPlanification.as_view(), name="ajouter_planification"),
-    path("planification/update/<int:pk>", views.UpdatePlanification.as_view(), name="update_planification"),
-    path("planification/delete/<int:pk>", views.DeletePlanification.as_view(), name="delete_planification"),
+    path('planification/update/<int:pk>/', views.update_planification, name='update_planification'),
+    path('planification/delete/<int:pk>/', views.delete_planification, name='delete_planification'),
 
     # Module dossier
     path("dossier", views.dossier, name="dossier"),

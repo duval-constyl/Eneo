@@ -1,3 +1,4 @@
+{% load custom_filter %}
 <!-- Button trigger modal -->
   <!-- Modal -->
       <div class="modal-content">
@@ -10,7 +11,16 @@
                 <div class="col-md-12">
                     <ul>
                         <li class="mb-2">L'équipement: <span class="text-muted">{{ intervention.equipement }}</span></li>
-                        <li class="mb-2">Description: <span class="text-muted">{{ intervention.description }}</span></li>
+                        <li class="mb-2">
+                          Description:
+                          <ol class="description-list">
+                              {% for item in intervention.description|split_semicolon %}
+                                  {% if item %}
+                                      <li class="text-muted">{{ item|capfirst }}</li>
+                                  {% endif %}
+                              {% endfor %}
+                          </ol>
+                        </li>
                         <li class="mb-2">Tache de maintenance: <span class="text-muted">{{ intervention.tache_maintenance }}</span></li>
                         <li class="mb-2">Responsable: <span class="text-muted">{{ intervention.responsable }}</span></li>
                         <li class="mb-2">Status: <span class="text-muted">{{ intervention.status }}</span></li>

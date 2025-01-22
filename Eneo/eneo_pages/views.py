@@ -1,4 +1,6 @@
+import calendar
 from datetime import datetime
+from django import template
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
@@ -555,35 +557,24 @@ def remove_from_cart(request, piece_id):
 def confirm_cart(request):
     if request.method == 'POST':
         cart = request.session.get('cart', {})
-        for piece_id, item in cart.items():
-            piece = get_object_or_404(Pièce, id=piece_id)
-            quantite_demandee = item['quantite']
-            
-            # Vérifier si la quantité disponible est suffisante
-            if piece.quantité_disponible >= quantite_demandee:
-                # Créer l'utilisation
-                Utiliser.objects.create(
+        if cart:
+            liste_confirmee = ListePieceConfirmee.objects.create(utilisateur=request.user)
+            for piece_id, item in cart.items():
+                piece = get_object_or_404(Pièce, id=piece_id)
+                PieceConfirmee.objects.create(
+                    liste=liste_confirmee,
                     piece=piece,
-                    utilisateur=request.user,
-                    quantite_prise=quantite_demandee
+                    quantite=item['quantite']
                 )
-                
-                # Décrémenter la quantité disponible
-                piece.quantité_disponible -= quantite_demandee
-                piece.save()
-            else:
-                messages.error(request, f"Quantité insuffisante pour {piece.nom}. Disponible: {piece.quantité_disponible}")
-                return redirect('view_cart')
-        
-        # Vider le panier
-        request.session['cart'] = {}
-        messages.success(request, 'Votre commande a été enregistrée avec succès.')
+                # ... (le reste de votre logique de confirmation)
+            request.session['cart'] = {}
+            messages.success(request, 'Votre liste a été confirmée et enregistrée.')
+        else:
+            messages.warning(request, 'Votre panier est vide.')
         return redirect('piece')
     return redirect('view_cart')
 
-
-# Module Planification
-# Modules Equipement
+# Module planification
 @login_required
 def planification(request):
     User = get_user_model()
@@ -617,13 +608,17 @@ def planification(request):
         # Ajouter les centrales des équipements trouvés
         centrales |= Centrale.objects.filter(equipement__in=equipements_search)
         
-        # Précharger tous les équipements pour les centrales trouvées
+        # Précharger tous les équipements pour les centrales trouvées avec leurs planifications
         centrales = centrales.prefetch_related(
-            Prefetch('equipement_set', queryset=base_queryset, to_attr='filtered_equipements')
-            )
+            Prefetch('equipement_set', 
+                     queryset=base_queryset.prefetch_related('planification_set'),
+                     to_attr='filtered_equipements')
+        )
     else:
         centrales = Centrale.objects.prefetch_related(
-            Prefetch('equipement_set', queryset=base_queryset, to_attr='filtered_equipements')
+            Prefetch('equipement_set', 
+                     queryset=base_queryset.prefetch_related('planification_set'),
+                     to_attr='filtered_equipements')
         )
 
     context = {
@@ -632,15 +627,10 @@ def planification(request):
 
     return render(request, "pages/planification/planification.html", context)
 
-@login_required
-def detail_planification(request, id_planification):
-    detail_piece = Pièce.objects.get(id = id_planification)
-    context = {"piece" : detail_piece}
-    return render(request, "pages/planification/detail.html", context)
 
 class AddPlanification(LoginRequiredMixin, CreateView):
-    model = Pièce
-    form_class = PieceForm
+    model = Planification
+    form_class = PlanificationForm
     template_name = "pages/planification/add.html"
 
     def get_success_url(self):
@@ -650,30 +640,45 @@ class AddPlanification(LoginRequiredMixin, CreateView):
         response = super().form_valid(form)
         self.object = form.save()
         form = self.get_form()
-        form = PieceForm()
+        form = PlanificationForm()
         return response
  
-class UpdatePlanification(LoginRequiredMixin, UpdateView):
-    model = Pièce
-    form_class = PieceForm
-    template_name = "pages/planification/update.html"
+@login_required
+def update_planification(request, pk):
+    planification = get_object_or_404(Planification, pk=pk)
+    equipement = planification.equipement
 
-    def get_success_url(self):
-        return HttpResponseRedirect('planification') 
-    
-    def get_object(self, queryset=None):
-        return Pièce.objects.get(pk=self.kwargs['pk'])
+    if request.method == 'POST':
+        form = PlanificationForm(request.POST, instance=planification)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Planification mise à jour avec succès.')
+            return redirect('planification')
+    else:
+        form = PlanificationForm(instance=planification)
 
-class DeletePlanification(LoginRequiredMixin, DeleteView):
-    model = Pièce
-    template_name = "pages/planification/delete.html"
+    context = {
+        'form': form,
+        'planification': planification,
+        'equipement': equipement
+    }
+    return render(request, 'pages/planification/update.html', context)
 
-    def get_success_url(self):
-        return HttpResponseRedirect('planification')  
-    
-    def get_object(self, queryset=None):
-        return Pièce.objects.get(pk=self.kwargs['pk'])
+@login_required
+def delete_planification(request, pk):
+    planification = get_object_or_404(Planification, pk=pk)
+    equipement = planification.equipement
 
+    if request.method == 'POST':
+        planification.delete()
+        messages.success(request, 'Planification supprimée avec succès.')
+        return redirect('planification')
+
+    context = {
+        'planification': planification,
+        'equipement': equipement
+    }
+    return render(request, 'pages/planification/delete.html', context)
 
 # Module Dossier de réchange
 @login_required
