@@ -322,6 +322,11 @@ logger = logging.getLogger(__name__)
 @login_required
 @transaction.atomic
 def importEquipement(request):
+    def map_type_equipement(value):
+        valid_types = ["transformateur", "disjoncteur"]
+        return value.capitalize() if value.lower() in valid_types else ""
+
+
     if request.method == 'POST':
         if 'file' not in request.FILES:
             messages.error(request, "Aucun fichier n'a été uploadé.")
@@ -340,7 +345,7 @@ def importEquipement(request):
             equipements_updated = 0
 
             for row in ws.iter_rows(min_row=2, values_only=True):
-                if not row[0]:  # Si la première cellule est vide, on passe à la ligne suivante
+                if not row[0]:
                     continue
                 
                 logger.info(f"Processing row: {row}")
@@ -354,42 +359,49 @@ def importEquipement(request):
                         date_installation = row[8].date()
                     else:
                         try:
-                            date_installation = datetime.strptime(row[8], '%Y-%m-%d').date()
+                            date_installation = datetime.strptime(str(row[8]), '%Y-%m-%d').date()
                         except ValueError:
                             logger.warning(f"Format de date invalide pour la ligne: {row}")
 
-                equipement, created = Equipement.objects.get_or_create(
-                    centrale=centrale_instance,
-                    nom=row[1],
-                    numero_serie=row[3],
-                    defaults={
-                        'type_equipement': row[2] or '',
-                        'modèle': row[4] or '',
-                        'marque': row[5] or '',
-                        'fréquence': float(row[6]) if row[6] else 0,
-                        'puissance': float(row[7]) if row[7] else 0,
-                        'date_installation': date_installation,
-                        'fonction': row[9] or '',
-                        'emplacement_couplage': row[10] or '',
-                        'regleur_en_chargeur': row[11] or '',
-                        'mode_de_fonctionnement': row[12] or '',
-                        'technique_de_coupure':row[13] or '',
-                        'pouvoir_de_coupure':row[14] or '',
-                        'pression_gaz_nombre_de_pôle':row[15] or '',
-                        'courant_nominal_en_service_continu':row[16] or '',
-                        'numero_service':row[17] or '',
-                        'tension_assigne':row[18] or '',
-                        'pouvoir_de_coupure_nominal_court_circuit':row[19] or '',
-                        'pouvoir_de_fermeture_nominal_court_circuit':row[20] or ''
-                    }
-                )
+                type_equipement = map_type_equipement(row[2])
+                logger.info(f"Mapped equipment type: {type_equipement}")
 
-                if created:
-                    logger.info(f"Created equipement: {equipement}")
-                    equipements_created += 1
+                
+                if type_equipement:
+                    equipement, created = Equipement.objects.update_or_create(
+                        centrale=centrale_instance,
+                        nom=row[1],
+                        numero_serie=row[3],
+                        defaults={
+                            'type_equipement': type_equipement,
+                            'modèle': row[4] or '',
+                            'marque': row[5] or '',
+                            'fréquence': float(row[6]) if row[6] else 0,
+                            'puissance': float(row[7]) if row[7] else 0,
+                            'date_installation': date_installation,
+                            'fonction': row[9] or '',
+                            'emplacement_couplage': row[10] or '',
+                            'regleur_en_chargeur': row[11] or '',
+                            'mode_de_fonctionnement': row[12] or '',
+                            'technique_de_coupure': row[13] or '',
+                            'pouvoir_de_coupure': row[14] or '',
+                            'pression_gaz_nombre_de_pôle': row[15] or '',
+                            'courant_nominal_en_service_continu': row[16] or '',
+                            'numero_service': row[17] or '',
+                            'tension_assigne': row[18] or '',
+                            'pouvoir_de_coupure_nominal_court_circuit': row[19] or '',
+                            'pouvoir_de_fermeture_nominal_court_circuit': row[20] or ''
+                        }
+                    )
+
+                    if created:
+                        logger.info(f"Created equipement: {equipement}")
+                        equipements_created += 1
+                    else:
+                        logger.info(f"Updated equipement: {equipement}")
+                        equipements_updated += 1
                 else:
-                    logger.info(f"Updated equipement: {equipement}")
-                    equipements_updated += 1
+                    logger.warning(f"Type d'équipement invalide pour la ligne: {row}")
 
             logger.info(f"Total equipements created: {equipements_created}")
             logger.info(f"Total equipements updated: {equipements_updated}")
