@@ -194,3 +194,13 @@ class Planification(models.Model):
 
     def __str__(self):
         return f"Planif {self.equipement}"
+    
+class PlanificationSelection(models.Model):
+    planification = models.ForeignKey(Planification, on_delete=models.CASCADE)
+    date = models.DateField()
+    is_checked = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('planification', 'date')
+

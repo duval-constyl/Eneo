@@ -54,7 +54,7 @@
                                 {% endfor %}
                             </ol>
                           </li>
-                          <li class="list-group-item">Fréquence: 
+                          <li class="list-group-item mb-2">Fréquence: 
                             <div class="table-responsive">
                               <table class="table">
                                 <thead>
@@ -81,7 +81,7 @@
                                           {% with days=month|get_days_in_month %}
                                             {% for day in days %}
                                               <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="" id="day{{ month }}{{ day }}" />
+                                                <input class="form-check-input planification-checkbox" type="checkbox" value="" id="day{{ month }}{{ day }}" data-planification-id="{{ planif.pk }}" data-date="{{ month }}{{ day }}"/>
                                                 <label class="form-check-label" for="day{{ month }}{{ day }}">
                                                   {{ day }}
                                                 </label>
@@ -98,7 +98,7 @@
                                         <td>
                                           {% for week in "1234"|make_list %}
                                             <div class="form-check">
-                                              <input class="form-check-input" type="checkbox" value="" id="week{{ month }}{{ week }}" />
+                                              <input class="form-check-input planification-checkbox" type="checkbox" value="" id="week{{ month }}{{ week }}" data-planification-id="{{ planif.pk }}" data-date="{{ month }}{{ week }}"/>
                                               <label class="form-check-label" for="week{{ month }}{{ week }}">{{ week }}</label>
                                             </div>
                                           {% endfor %}
@@ -110,7 +110,7 @@
                                       {% for month in "01,02,03,04,05,06,07,08,09,10,11,12"|split:"," %}
                                         <td>
                                           <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="month{{ month }}" />
+                                            <input class="form-check-input planification-checkbox" type="checkbox" value="" id="month{{ month }}" data-planification-id="{{ planif.pk }}" data-date="{{ month }}{{ month }}"/>
                                             <label class="form-check-label" for="month{{ month }}">{{ month }}</label>
                                           </div>
                                         </td>
@@ -121,7 +121,8 @@
                                       {% for month in "01,02,03,04,05,06,07,08,09,10,11,12"|split:"," %}
                                         <td>
                                           <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="month{{ month }}" />
+                                            <input class="form-check-input planification-checkbox" type="checkbox" value="" id="month{{ month }}" data-planification-id="{{ planif.pk }}" data-date="{{ month }}{{ month
+                                             }}"/>
                                             <label class="form-check-label" for="month{{ month }}">{{ month }}</label>
                                           </div>
                                         </td>
@@ -133,7 +134,7 @@
                             </div>
                           </li>
                           
-                          <li class="list-group-item">Heures requises: <span class="text-muted">{{ planif.heure_homme_requise }}</span></li>
+                          <li class="mb-2">Heures requises: <span class="text-muted">{{ planif.heure_homme_requise }}</span></li>
                           <li class="mb-2">
                             Liste outillage:
                             <ol class="description-list">

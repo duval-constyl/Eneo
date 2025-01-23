@@ -5,17 +5,17 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel">Importer un fichier</h5>
-          <button type="button" class="btn-close" data-mdb-ripple-init data-mdb-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-mdb-ripple-init data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form action="{% url 'equipement_import' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group mb-3">
                 <label for="file mb-2">Sélectionner un fichier Excel:</label>
-                <input type="file" id="file" name="file" class="form-control" accept=".xlsx">
+                <input type="file" id="file" name="file" class="form-control" accept=".xlsx, .xls">
             </div>
             <button type="submit" id="submit-button" class="btn btn-primary">Importer les données</button>
-        </form>
+          </form>
         </div>
       </div>
     </div>

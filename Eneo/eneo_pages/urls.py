@@ -47,6 +47,7 @@ urlpatterns = [
     path("planification/ajouter", views.AddPlanification.as_view(), name="ajouter_planification"),
     path('planification/update/<int:pk>/', views.update_planification, name='update_planification'),
     path('planification/delete/<int:pk>/', views.delete_planification, name='delete_planification'),
+    path('save-planification-selection/', views.save_planification_selection, name='save_planification_selection'),
 
     # Module dossier
     path("dossier", views.dossier, name="dossier"),

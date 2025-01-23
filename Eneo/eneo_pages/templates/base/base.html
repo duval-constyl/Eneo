@@ -87,6 +87,79 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.planification-checkbox');
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const planificationId = this.dataset.planificationId;
+                const dataDate = this.dataset.date;
+                const isChecked = this.checked;
+
+                // Récupérer la date du jour
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const currentDate = `${year}-${month}-${day}`;
+
+                console.log('Sending data:', {
+                    planification_id: planificationId,
+                    date: currentDate,
+                    is_checked: isChecked,
+                    original_data_date: dataDate
+                });
+
+                fetch('/save-planification-selection/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        planification_id: planificationId,
+                        date: currentDate,
+                        is_checked: isChecked
+                    })
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    
+                    // Optionnel : feedback visuel
+                    if (data.status === 'success') {
+                        this.closest('.form-check').classList.toggle('bg-success', isChecked);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+  
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
           var typeIntervention = document.getElementById('type_intervention');
           var intervalIntervention = document.getElementById('interval_intervention').parentNode;
           

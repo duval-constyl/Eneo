@@ -56,6 +56,9 @@ MIDDLEWARE = [
     'django_auto_logout.middleware.auto_logout',
 ]
 
+CSRF_COOKIE_HTTPONLY = False  # Peut aider au débogage
+CSRF_USE_SESSIONS = False 
+
 ROOT_URLCONF = 'Eneo.urls'
 
 TEMPLATES = [

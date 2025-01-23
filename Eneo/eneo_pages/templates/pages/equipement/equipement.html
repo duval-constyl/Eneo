@@ -2,6 +2,21 @@
 {% load static %}
 
 {% block body %}
+    {% if messages %}
+      {% for message in messages %}
+          <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %} alert-dismissible fade show d-flex align-items-center" role="alert">
+              {% if message.tags == 'success' %}
+                  <i class="fas fa-check-circle me-2"></i>
+              {% elif message.tags == 'error' %}
+                  <i class="fas fa-exclamation-circle me-2"></i>
+              {% endif %}
+              <div>
+                  {{ message }}
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+      {% endfor %}
+    {% endif %}
     {% url 'ajouter_equipement' as ajouter_equipement_url %}
     {% url 'equipement_import' as equipement_import_url %}
 

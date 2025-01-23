@@ -1,11 +1,22 @@
 {% extends "../auth/base.html" %}
 
 {% block body %}
-    {% for message in messages %}
-    <div class="message text-center alert alert-info {{ message.tags }}">
-        {{ message }}
-    </div>
-    {% endfor %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %} alert-dismissible fade show d-flex align-items-center" role="alert">
+                {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle me-2"></i>
+                {% elif message.tags == 'error' %}
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                {% endif %}
+                <div>
+                    {{ message }}
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
         <div class="col-md-4">
             <div class="border rounded p-4 shadow">

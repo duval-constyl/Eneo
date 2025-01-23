@@ -1,7 +1,7 @@
-import calendar
 from datetime import datetime
-from django import template
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from itertools import count
+import logging
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
@@ -11,7 +11,6 @@ from .forms import *
 from .resources import *
 from django.contrib import messages
 from openpyxl import load_workbook
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -24,9 +23,12 @@ from django. shortcuts import render
 from .documents import *
 from django.db.models import Q
 from elasticsearch_dsl import Q as ESQ
-from django.db.models import Sum
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+import json
+from datetime import datetime
 
 
 @login_required
@@ -315,40 +317,89 @@ class DeleteEquipement(LoginRequiredMixin, DeleteView):
     def get_object(self, queryset=None):
         return Equipement.objects.get(pk=self.kwargs['pk'])
 
-@login_required  
+logger = logging.getLogger(__name__)
+
+@login_required
+@transaction.atomic
 def importEquipement(request):
     if request.method == 'POST':
-        excel_file = request.FILES['excel_file']
-        wb = load_workbook(excel_file)
-        ws = wb.active
+        if 'file' not in request.FILES:
+            messages.error(request, "Aucun fichier n'a été uploadé.")
+            return render(request, 'pages/equipement/equipement.html')
+        
+        excel_file = request.FILES['file']
+        
+        if not excel_file.name.endswith(('.xlsx', '.xls')):
+            messages.error(request, 'Mauvais type de fichier. Veuillez uploader un fichier Excel (.xlsx ou .xls).')
+            return render(request, 'pages/equipement/equipement.html')
+        
+        try:
+            wb = load_workbook(excel_file, data_only=True)
+            ws = wb.active
+            equipements_created = 0
+            equipements_updated = 0
 
-        for row in ws.iter_rows(min_row=19, values_only=True):
-            centrale_nom = row[0]  # Nom de la centrale dans la première colonne du fichier
-            # Trouver ou créer l'instance de Centrale en fonction du nom
-            centrale_instance, created = Centrale.objects.get_or_create(nom=centrale_nom)
-            Equipement.objects.create(
-                centrale=centrale_instance,
-                nom=row[1],
-                type_equipement=row[2],
-                modele=row[3],
-                marque=row[4],
-                puissance=row[5],
-                frequence=row[6],
-                date_installation=datetime.strptime(row[7], '%Y-%m-%d') if row[7] else None,
-                fonction=row[8],
-                emplacement_couplage=row[9],
-                regleur_en_chargeur=row[10],
-                mode_de_fonctionnement=row[11],
-                technique_de_coupure=row[12],
-                pouvoir_de_coupure=row[13],
-                pression_gaz_nombre_de_pole=row[14],
-                courant_nominal_en_service_continu=row[15],
-                numero_service=row[16],
-                tension_assigne=row[17],
-                pouvoir_de_coupure_nominal_court_circuit=row[18],
-                pouvoir_de_fermeture_nominal_court_circuit=row[19]
-            )
-        return render(request, 'pages/equipement.html')
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if not row[0]:  # Si la première cellule est vide, on passe à la ligne suivante
+                    continue
+                
+                logger.info(f"Processing row: {row}")
+                
+                centrale_nom = row[0]
+                centrale_instance, _ = Centrale.objects.get_or_create(nom=centrale_nom)
+                
+                date_installation = None
+                if row[8]:
+                    if isinstance(row[8], datetime):
+                        date_installation = row[8].date()
+                    else:
+                        try:
+                            date_installation = datetime.strptime(row[8], '%Y-%m-%d').date()
+                        except ValueError:
+                            logger.warning(f"Format de date invalide pour la ligne: {row}")
+
+                equipement, created = Equipement.objects.get_or_create(
+                    centrale=centrale_instance,
+                    nom=row[1],
+                    numero_serie=row[3],
+                    defaults={
+                        'type_equipement': row[2] or '',
+                        'modèle': row[4] or '',
+                        'marque': row[5] or '',
+                        'fréquence': float(row[6]) if row[6] else 0,
+                        'puissance': float(row[7]) if row[7] else 0,
+                        'date_installation': date_installation,
+                        'fonction': row[9] or '',
+                        'emplacement_couplage': row[10] or '',
+                        'regleur_en_chargeur': row[11] or '',
+                        'mode_de_fonctionnement': row[12] or '',
+                        'technique_de_coupure':row[13] or '',
+                        'pouvoir_de_coupure':row[14] or '',
+                        'pression_gaz_nombre_de_pôle':row[15] or '',
+                        'courant_nominal_en_service_continu':row[16] or '',
+                        'numero_service':row[17] or '',
+                        'tension_assigne':row[18] or '',
+                        'pouvoir_de_coupure_nominal_court_circuit':row[19] or '',
+                        'pouvoir_de_fermeture_nominal_court_circuit':row[20] or ''
+                    }
+                )
+
+                if created:
+                    logger.info(f"Created equipement: {equipement}")
+                    equipements_created += 1
+                else:
+                    logger.info(f"Updated equipement: {equipement}")
+                    equipements_updated += 1
+
+            logger.info(f"Total equipements created: {equipements_created}")
+            logger.info(f"Total equipements updated: {equipements_updated}")
+            messages.success(request, f"Importation réussie. {equipements_created} équipements créés, {equipements_updated} équipements mis à jour.")
+            return redirect('equipement')
+        except Exception as e:
+            logger.error(f"Error during import: {str(e)}", exc_info=True)
+            messages.error(request, f"Une erreur s'est produite lors de l'importation : {str(e)}")
+            return render(request, 'pages/equipement/equipement.html')
+
     return render(request, 'base/import.html')
 
 # Module Intervention
@@ -679,6 +730,53 @@ def delete_planification(request, pk):
         'equipement': equipement
     }
     return render(request, 'pages/planification/delete.html', context)
+
+
+@csrf_protect
+@require_POST
+def save_planification_selection(request):
+    try:
+        data = json.loads(request.body)
+        
+        planification_id = data.get('planification_id')
+        date_str = data.get('date')
+        is_checked = data.get('is_checked')
+
+        # Reste de votre logique de sauvegarde
+        planification = Planification.objects.get(pk=planification_id)
+        
+        selection, created = PlanificationSelection.objects.get_or_create(
+            planification=planification,
+            date=date_str,
+            defaults={'is_checked': is_checked}
+        )
+
+        if not created:
+            selection.is_checked = is_checked
+            selection.save()
+
+        return JsonResponse({'status': 'success'})
+
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error', 
+            'message': str(e)
+        }, status=400)
+
+
+
+#def planification_statistics(request):
+    # Récupérer les statistiques de sélection
+    #selections = PlanificationSelection.objects.filter(is_checked=True)
+    
+    # Grouper par planification, mois, année
+    #statistics = selections.annotate(
+        #month=ExtractMonth('date'),
+        #year=ExtractYear('date')
+    #).values('planification__tache', 'month', 'year') \
+     #.annotate(checked_days=count('id'))
+
+    #return render(request, 'statistics.html', {'statistics': statistics})
 
 # Module Dossier de réchange
 @login_required

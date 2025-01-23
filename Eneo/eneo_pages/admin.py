@@ -14,3 +14,5 @@ admin.site.register(Utiliser)
 admin.site.register(ListePieceConfirmee)
 admin.site.register(PieceConfirmee)
 admin.site.register(Planification)
+admin.site.register(PlanificationSelection)
+
