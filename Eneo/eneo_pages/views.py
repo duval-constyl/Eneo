@@ -606,8 +606,11 @@ def add_to_cart(request, piece_id):
 
 def get_cart_quantity(request):
     cart = request.session.get('cart', {})
+    if not cart:
+        return JsonResponse({'quantity': 0})
     total_quantity = sum(item['quantite'] for item in cart.values())
     return JsonResponse({'quantity': total_quantity})
+
 
 def remove_from_cart(request, piece_id):
     cart = request.session.get('cart', {})
