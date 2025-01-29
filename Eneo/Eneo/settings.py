@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'import_export',
     'django_htmx',
     'django_elasticsearch_dsl',
+    'django_select2',
+    'dal',
+    'dal_select2',
 ]
 
 MIDDLEWARE = [

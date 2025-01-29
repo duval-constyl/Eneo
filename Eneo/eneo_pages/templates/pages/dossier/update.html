@@ -5,7 +5,7 @@
       <h5 class="modal-title">Modifier un dossier</h5>
     </div>
     <div class="modal-body">
-      <form hx-post="{{ request.path }}" action="" enctype="multipart/form-data"  method="post">
+      <form id="form" hx-post="{{ request.path }}" action="" enctype="multipart/form-data"  method="post">
         {% csrf_token %} 
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Modifer</button>

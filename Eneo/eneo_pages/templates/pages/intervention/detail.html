@@ -11,6 +11,13 @@
                 <div class="col-md-12">
                     <ul>
                         <li class="mb-2">L'équipement: <span class="text-muted">{{ intervention.equipement }}</span></li>
+                        <li class="mb-2">Date de debut l'intervention: <span class="text-muted">{{ intervention.date_intervention }}</span></li>
+                        <li class="mb-2">Date de fin l'intervention: <span class="text-muted">{{ intervention.date_fin_intervention }}</span></li>
+                        {% if intervention.type_intervention == "Corrective" %}
+                          <li class="mb-2">Date de défaillance: <span class="text-muted">{{ intervention.date_defaillance }}</span></li>
+                        {% endif %}
+                        <li class="mb-2">Status: <span class="text-muted">{{ intervention.status }}</span></li>
+                        <li class="mb-2">Responsable: <span class="text-muted">{{ intervention.responsable }}</span></li>
                         <li class="mb-2">
                           Description:
                           <ol class="description-list">
@@ -21,19 +28,60 @@
                               {% endfor %}
                           </ol>
                         </li>
-                        <li class="mb-2">Tache de maintenance: <span class="text-muted">{{ intervention.tache_maintenance }}</span></li>
-                        <li class="mb-2">Responsable: <span class="text-muted">{{ intervention.responsable }}</span></li>
-                        <li class="mb-2">Status: <span class="text-muted">{{ intervention.status }}</span></li>
-                        <li class="mb-2">Date de défaillance: <span class="text-muted">{{ intervention.date_defaillance }}</span></li>
-                        <li class="mb-2">Date de l'intervention: <span class="text-muted">{{ intervention.date_intervention }}</span></li>
-                        <li class="mb-2">Coût: <span class="text-muted">{{ intervention.coût }}</span><span>Fcfa</span></li>
+
+                        {% if intervention.type_intervention == "Corrective" %}
+                          <li class="mb-2">
+                            Causes profondes: 
+                            <ol class="description-list">
+                              {% for item in intervention.causes_profondes|split_semicolon %}
+                                  {% if item %}
+                                      <li class="text-muted">{{ item|capfirst }}</li>
+                                  {% endif %}
+                              {% endfor %}
+                            </ol>
+                          </li>
+                          <li class="mb-2">
+                            Actions correctives: 
+                            <ol class="description-list">
+                              {% for item in intervention.action_correctives|split_semicolon %}
+                                  {% if item %}
+                                      <li class="text-muted">{{ item|capfirst }}</li>
+                                  {% endif %}
+                              {% endfor %}
+                            </ol>
+                          </li>
+                          <li class="mb-2">
+                            Tache de maintenance: 
+                            <ol class="description-list">
+                              {% for item in intervention.tache_maintenance|split_semicolon %}
+                                  {% if item %}
+                                      <li class="text-muted">{{ item|capfirst }}</li>
+                                  {% endif %}
+                              {% endfor %}
+                            </ol>
+                          </li>
+                        {% endif %}
+
+                        <li class="mb-2">
+                          Sécurités: 
+                          <ol class="description-list">
+                            {% for item in intervention.sécurité|split_semicolon %}
+                                {% if item %}
+                                    <li class="text-muted">{{ item|capfirst }}</li>
+                                {% endif %}
+                            {% endfor %}
+                          </ol>
+                        </li>
+                        <li class="mb-2">Coût main_oeuvre: <span class="text-muted">{{ intervention.coût_main_oeuvre }}</span><span class="text-muted"> Fcfa</span></li>
+                        <li class="mb-2">Coût matériels: <span class="text-muted">{{ intervention.coût_materiel }}</span><span class="text-muted"> Fcfa</span></li>
+                        <li class="mb-2">Coût total: <span class="text-muted">{{ intervention.coût }}</span><span class="text-muted"> Fcfa</span></li>
                     </ul>
                 </div>
               </div>
           </div>  
         </div>
         <div class="modal-footer">
-          <a href="{% url 'update_intervention' intervention.id %}" hx-get="{% url 'update_intervention' intervention.id %}" hx-target="#dialog" type="button" class="btn btn-warning me-3">Modifier</a>
+          <a href="{% url 'update_intervention' intervention.id %}" hx-get="{% url 'update_intervention' intervention.id %}" hx-target="#dialog" type="button" class="btn btn-warning me-3" data-bs-target="#addInterventionModal">Modifier</a>
           <a href="{% url 'delete_intervention' intervention.id %}" hx-get="{% url 'delete_intervention' intervention.id %}" hx-target="#dialog" type="button" class="btn btn-danger me-3">Supprimer</a>
         </div>
       </div>

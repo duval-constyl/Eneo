@@ -5,10 +5,14 @@
       <h5 class="modal-title">Ajouter une intervention</h5>
     </div>
     <div class="modal-body">
-      <form action="{% url 'ajouter_intervention' %}" enctype="multipart/form-data"  method="post"> 
+      <form id="interventionForm" action="{% url 'ajouter_intervention' %}" enctype="multipart/form-data"  method="post"> 
         {% csrf_token %} 
         {{ form.as_p }}
-        <p>Liste materiel: <a href="{% url 'view_cart' %}"><span class="badge rounded-pill badge-warning fs-7">Voir</span></a></p>
+        <div id="pieces_confirmees" style="display: none;">
+          <h5>Pièces confirmées :</h5>
+          <ul id="liste_pieces">
+          </ul>
+        </div>
         <button type="submit" class="btn btn-success">Ajouter</button>
         <button type="button" data-bs-dismiss="modal" class="btn btn-info">Annuler</button>
       </form>

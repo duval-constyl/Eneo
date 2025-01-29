@@ -40,17 +40,17 @@ def home(request):
     # Obtenir la date du jour
     today = timezone.now().date()
     if user.section == 'DISJONCTEUR':
-        intervention_date = Intervention.objects.filter(equipement__type_equipement='Disjoncteur', date_intervention=today)
+        intervention_date = Intervention.objects.filter(equipement__type_equipement='Disjoncteur', date_intervention=today)[:4]
     elif user.section == 'TRANSFORMATEUR':
-        intervention_date = Intervention.objects.filter(equipement__type_equipement='Transformateur', date_intervention=today)
+        intervention_date = Intervention.objects.filter(equipement__type_equipement='Transformateur', date_intervention=today)[:4]
     else:
         intervention_date = Intervention.objects.filter(date_intervention=today)
 
     #Rubrique intervention en panne
     if user.section == 'DISJONCTEUR':
-        intervention_status = Intervention.objects.filter(equipement__type_equipement='Disjoncteur', status='En panne')
+        intervention_status = Intervention.objects.filter(equipement__type_equipement='Disjoncteur', status='En panne')[:4]
     elif user.section == 'TRANSFORMATEUR':
-        intervention_status = Intervention.objects.filter(equipement__type_equipement='Transformateur', status='En panne')
+        intervention_status = Intervention.objects.filter(equipement__type_equipement='Transformateur', status='En panne')[:4]
     else:
         intervention_status = Intervention.objects.filter(status='En panne')
 
@@ -62,11 +62,11 @@ def home(request):
     # Rubrique équipement
     # Filter equipment based on user section
     if user.section == 'DISJONCTEUR':
-        liste_equipement = Equipement.objects.filter(type_equipement='Disjoncteur')
+        liste_equipement = Equipement.objects.filter(type_equipement='Disjoncteur')[:4]
     elif user.section == 'TRANSFORMATEUR':
-        liste_equipement = Equipement.objects.filter(type_equipement='Transformateur')
+        liste_equipement = Equipement.objects.filter(type_equipement='Transformateur')[:4]
     else:
-        liste_equipement = Equipement.objects.all()
+        liste_equipement = Equipement.objects.all()[:4]
 
     context = {
         "liste_equipement" : liste_equipement,
@@ -76,24 +76,6 @@ def home(request):
         "total_montant": total_montant,
     }
     return render(request, "pages/home.html", context)
-
-@login_required
-def intervention_home(request):
-    User = get_user_model()  # Get the custom user model
-    user = request.user  # Get the currently logged-in user
-     # Obtenir la date du jour
-    today = timezone.now().date()
-    
-    # Filter equipment based on user section
-    if user.section == 'DISJONCTEUR':
-        intervention_date = Intervention.objects.filter(equipement__type_equipement='Disjoncteur', date_intervention=today)
-    elif user.section == 'TRANSFORMATEUR':
-        intervention_date = Intervention.objects.filter(equipement__type_equipement='Transformateur', date_intervention=today)
-    else:
-        intervention_date = Intervention.objects.filter(date_intervention=today)
-
-    context_date = {"liste_intervention_date" : intervention_date}
-    return render(request, "pages/home.html", context_date)
 
 # Auth views
 def RegisterView(request):
@@ -132,6 +114,42 @@ def LogoutView(request):
 
     # redirect to login page after logout
     return redirect('login')
+
+@login_required
+def profile_view(request):
+    user = request.user  # Get the currently logged-in user
+    return render(request, 'auth/profile.html', {'user': user})
+
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        form = UserProfileUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            email = form.cleaned_data.get('email')
+            
+            # Vérifier si le nom d'utilisateur existe déjà (sauf pour l'utilisateur actuel)
+            if User.objects.filter(username=username).exclude(pk=request.user.pk).exists():
+                messages.error(request, 'Ce nom d\'utilisateur est déjà pris.')
+                return render(request, 'auth/update_profile.html', {'form': form})
+            
+            # Vérifier si l'email existe déjà (sauf pour l'utilisateur actuel)
+            if User.objects.filter(email=email).exclude(pk=request.user.pk).exists():
+                messages.error(request, 'Cette adresse email est déjà utilisée.')
+                return render(request, 'auth/update_profile.html', {'form': form})
+            
+            form.save()
+            messages.success(request, 'Votre profil a été mis à jour avec succès.')
+            return redirect('profile')
+    else:
+        form = UserProfileUpdateForm(instance=request.user)
+    
+    return render(request, 'auth/update_profile.html', {'form': form})
+
+@login_required
+def setting_view(request):
+    pass
+    return render(request, 'pages/setting.html') 
 
 def ForgotPassword(request):
     User = get_user_model()
@@ -236,11 +254,11 @@ def equipement(request):
 
     # Filtrer les équipements en fonction de la section de l'utilisateur
     if user.section == 'DISJONCTEUR':
-        base_queryset = Equipement.objects.filter(type_equipement='Disjoncteur')
+        base_queryset = Equipement.objects.filter(type_equipement='Disjoncteur').order_by('-date_création')
     elif user.section == 'TRANSFORMATEUR':
-        base_queryset = Equipement.objects.filter(type_equipement='Transformateur')
+        base_queryset = Equipement.objects.filter(type_equipement='Transformateur').order_by('-date_création')
     else:
-        base_queryset = Equipement.objects.all()
+        base_queryset = Equipement.objects.all().order_by('-date_création')
 
     if q:
         # Recherche Elasticsearch
@@ -280,20 +298,21 @@ class AddEquipement(LoginRequiredMixin, CreateView):
     model = Equipement
     form_class = EquipementForm
     template_name = "pages/equipement/add.html"
-        # Overriding the success_url method to reload the same page after form submission
-    def get_success_url(self):
-        # Redirects to the same URL after successful submission (i.e., staying on the same page)
-        return reverse_lazy('ajouter_equipement')  # Assuming 'ajouter_equipement' is the name of the URL for this view.
 
-    # Override form_valid to clear the form after saving the instance
+    def get_form_kwargs(self):
+        kwargs = super(AddEquipement, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('ajouter_equipement')
+
     def form_valid(self, form):
+        form.instance.user = self.request.user
         response = super().form_valid(form)
-        # After the form is successfully saved, clear the form fields
-        self.object = form.save()
-        form = self.get_form()
-        form = EquipementForm()  # Reset the form here
+        messages.success(self.request, "L'équipement a été ajouté avec succès.")
         return response
-    
+
 class UpdateEquipement(LoginRequiredMixin, UpdateView):
     model = Equipement
     form_class = EquipementForm
@@ -383,14 +402,15 @@ def importEquipement(request):
                             'emplacement_couplage': row[10] or '',
                             'regleur_en_chargeur': row[11] or '',
                             'mode_de_fonctionnement': row[12] or '',
-                            'technique_de_coupure': row[13] or '',
-                            'pouvoir_de_coupure': row[14] or '',
-                            'pression_gaz_nombre_de_pôle': row[15] or '',
-                            'courant_nominal_en_service_continu': row[16] or '',
-                            'numero_service': row[17] or '',
-                            'tension_assigne': row[18] or '',
-                            'pouvoir_de_coupure_nominal_court_circuit': row[19] or '',
-                            'pouvoir_de_fermeture_nominal_court_circuit': row[20] or ''
+                            'etat_equipement': row[13] or '',
+                            'niveau_tension': row[14] or '',
+                            'technique_de_coupure': row[15] or '',
+                            'pouvoir_de_coupure': row[16] or '',
+                            'pression_gaz_nombre_de_pôle': row[17] or '',
+                            'courant_nominal_en_service_continu': row[18] or '',
+                            'tension_assigne': row[19] or '',
+                            'pouvoir_de_coupure_nominal_court_circuit': row[20] or '',
+                            'pouvoir_de_fermeture_nominal_court_circuit': row[21] or ''
                         }
                     )
 
@@ -414,6 +434,7 @@ def importEquipement(request):
 
     return render(request, 'base/import.html')
 
+
 # Module Intervention
 @login_required
 def intervention(request):
@@ -425,11 +446,11 @@ def intervention(request):
     
     # Filter equipment based on user section
     if user.section == 'DISJONCTEUR':
-        base_queryset = Intervention.objects.filter(equipement__type_equipement='Disjoncteur')
+        base_queryset = Intervention.objects.filter(equipement__type_equipement='Disjoncteur').order_by('-date_création')
     elif user.section == 'TRANSFORMATEUR':
-        base_queryset = Intervention.objects.filter(equipement__type_equipement='Transformateur')
+        base_queryset = Intervention.objects.filter(equipement__type_equipement='Transformateur').order_by('-date_création')
     else:
-        base_queryset = Intervention.objects.all()
+        base_queryset = Intervention.objects.all().order_by('-date_création')
 
     if q:
         # Recherche Elasticsearch
@@ -470,25 +491,30 @@ class AddIntervention(LoginRequiredMixin, CreateView):
     model = Intervention
     form_class = InterventionForm
     template_name = "pages/intervention/add.html"
-        # Overriding the success_url method to reload the same page after form submission
-    def get_success_url(self):
-        # Redirects to the same URL after successful submission (i.e., staying on the same page)
-        return reverse_lazy('intervention')  # Assuming 'ajouter_equipement' is the name of the URL for this view.
 
-    # Override form_valid to clear the form after saving the instance
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def get_success_url(self):
+        return reverse_lazy('intervention')
+
     def form_valid(self, form):
         response = super().form_valid(form)
-        # After the form is successfully saved, clear the form fields
         self.object = form.save()
-        form = self.get_form()
-        form = InterventionForm()  # Reset the form here
         return response
 
 class UpdateIntervention(LoginRequiredMixin, UpdateView):
     model = Intervention
-    form_class = InterventionUpdateForm
+    form_class = InterventionForm
     template_name = "pages/intervention/update.html"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    
     def get_success_url(self):
         return reverse_lazy('intervention')   
     
@@ -511,7 +537,7 @@ class DeleteIntervention(LoginRequiredMixin, DeleteView):
 def piece(request):
     context = {}
     q = request.GET.get("q")
-    base_queryset = Pièce.objects.all()
+    base_queryset = Pièce.objects.all().order_by('-date_création')
 
     if q:
         # Recherche Elasticsearch
@@ -565,7 +591,7 @@ class UpdatePiece(LoginRequiredMixin, UpdateView):
     template_name = "pages/piece/update.html"
 
     def get_success_url(self):
-        return HttpResponse(reverse('piece'))
+        return reverse_lazy('piece') 
     
     def get_object(self, queryset=None):
         return Pièce.objects.get(pk=self.kwargs['pk'])
@@ -575,7 +601,7 @@ class DeletePiece(LoginRequiredMixin, DeleteView):
     template_name = "pages/piece/delete.html"
 
     def get_success_url(self):
-        return HttpResponse(reverse('piece'))
+        return reverse_lazy('piece') 
     
     def get_object(self, queryset=None):
         return Pièce.objects.get(pk=self.kwargs['pk'])
@@ -611,7 +637,6 @@ def get_cart_quantity(request):
     total_quantity = sum(item['quantite'] for item in cart.values())
     return JsonResponse({'quantity': total_quantity})
 
-
 def remove_from_cart(request, piece_id):
     cart = request.session.get('cart', {})
     if str(piece_id) in cart:
@@ -627,18 +652,53 @@ def confirm_cart(request):
             liste_confirmee = ListePieceConfirmee.objects.create(utilisateur=request.user)
             for piece_id, item in cart.items():
                 piece = get_object_or_404(Pièce, id=piece_id)
+                quantite_demandee = item['quantite']
                 PieceConfirmee.objects.create(
                     liste=liste_confirmee,
                     piece=piece,
                     quantite=item['quantite']
                 )
-                # ... (le reste de votre logique de confirmation)
+
+                # Vérifier si la quantité disponible est suffisante
+            if piece.quantité_disponible >= quantite_demandee:
+                # Créer l'utilisation
+                Utiliser.objects.create(
+                    piece=piece,
+                    utilisateur=request.user,
+                    quantite_prise=quantite_demandee
+                )
+                
+                # Décrémenter la quantité disponible
+                piece.quantité_disponible -= quantite_demandee
+                piece.save()
+            else:
+                messages.error(request, f"Quantité insuffisante pour {piece.nom}. Disponible: {piece.quantité_disponible}")
+                return redirect('view_cart')
+            
             request.session['cart'] = {}
             messages.success(request, 'Votre liste a été confirmée et enregistrée.')
         else:
             messages.warning(request, 'Votre panier est vide.')
         return redirect('piece')
     return redirect('view_cart')
+
+def get_pieces_confirmees(request, liste_id):
+    try:
+        liste = ListePieceConfirmee.objects.get(id=liste_id)
+        pieces = PieceConfirmee.objects.filter(liste=liste)
+        data = {
+            'pieces': [
+                {
+                    'nom': piece.piece.nom,
+                    'quantite': piece.quantite,
+                    'prix_unitaire': float(piece.piece.prix_unitaire)
+                } for piece in pieces
+            ]
+        }
+    except ListePieceConfirmee.DoesNotExist:
+        data = {'pieces': []}
+    return JsonResponse(data)
+
 
 # Module planification
 @login_required
@@ -649,9 +709,9 @@ def planification(request):
 
     # Filtrer les équipements basés sur la section de l'utilisateur
     if user.section == 'DISJONCTEUR':
-        base_queryset = Equipement.objects.filter(type_equipement='Disjoncteur')
+        base_queryset = Equipement.objects.filter(type_equipement='Disjoncteur').order_by('-date_création')
     elif user.section == 'TRANSFORMATEUR':
-        base_queryset = Equipement.objects.filter(type_equipement='Transformateur')
+        base_queryset = Equipement.objects.filter(type_equipement='Transformateur').order_by('-date_création')
     else:
         base_queryset = Equipement.objects.all()
 
@@ -672,27 +732,26 @@ def planification(request):
         )
         
         # Ajouter les centrales des équipements trouvés
-        centrales |= Centrale.objects.filter(equipement__in=equipements_search)
+        centrales |= Centrale.objects.filter(equipement__in=equipements_search).order_by('-date_création')
         
         # Précharger tous les équipements pour les centrales trouvées avec leurs planifications
         centrales = centrales.prefetch_related(
             Prefetch('equipement_set', 
                      queryset=base_queryset.prefetch_related('planification_set'),
                      to_attr='filtered_equipements')
-        )
+        ).order_by('-date_création')
     else:
         centrales = Centrale.objects.prefetch_related(
             Prefetch('equipement_set', 
                      queryset=base_queryset.prefetch_related('planification_set'),
                      to_attr='filtered_equipements')
-        )
+        ).order_by('-date_création')
 
     context = {
         "centrales": centrales
     }
 
     return render(request, "pages/planification/planification.html", context)
-
 
 class AddPlanification(LoginRequiredMixin, CreateView):
     model = Planification
@@ -701,13 +760,14 @@ class AddPlanification(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('planification') 
-
+    
     def form_valid(self, form):
-        response = super().form_valid(form)
-        self.object = form.save()
-        form = self.get_form()
-        form = PlanificationForm()
-        return response
+        # Si nécessaire, récupérez la valeur du champ caché
+        equipement_id = self.request.POST.get('equipement')
+        if equipement_id:
+            form.instance.equipement_id = equipement_id
+        return super().form_valid(form)
+
  
 @login_required
 def update_planification(request, pk):
@@ -745,6 +805,17 @@ def delete_planification(request, pk):
         'equipement': equipement
     }
     return render(request, 'pages/planification/delete.html', context)
+
+def get_equipement(request, intervention_id):
+    try:
+        intervention = Intervention.objects.get(id=intervention_id)
+        data = {
+            'equipement_id': intervention.equipement.id,
+            'equipement_name': f"{intervention.equipement.nom} {intervention.equipement.type_equipement} {intervention.equipement.numero_serie}"
+        }
+    except Intervention.DoesNotExist:
+        data = {'equipement_id': '', 'equipement_name': ''}
+    return JsonResponse(data)
 
 
 @csrf_protect
@@ -798,7 +869,7 @@ def save_planification_selection(request):
 def dossier(request):
     context = {}
     q = request.GET.get("q")
-    base_queryset = Dossier.objects.all()
+    base_queryset = Dossier.objects.all().order_by('-date_création')
 
     if q:
         # Recherche Elasticsearch

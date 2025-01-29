@@ -1,0 +1,22 @@
+<!-- auth/profile.html -->
+{% extends "../base/base.html" %}
+
+{% block body %}
+<div class="container vh-100 mb-5 mt-5">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title text-center fw-bold">Mon Profil</h5>
+            <p><strong>Nom utilisateur:</strong> {{ user.username }}</p>
+            <p><strong>Adresse mail:</strong> {{ user.email }}</p>
+            <p><strong>Nom:</strong> {{ user.first_name }}</p>
+            <p><strong>Prénom:</strong> {{ user.last_name }}</p>
+            <p><strong>Section:</strong> {{ user.section }}</p>
+            <p><strong>Jour d'ajout:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+            
+            <div class="text-center mt-3">
+                <a href="{% url 'update_profile' %}" class="btn btn-warning">Modifier mon Profil</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

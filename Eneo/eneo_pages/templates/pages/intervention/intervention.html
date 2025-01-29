@@ -3,7 +3,7 @@
 
 {% block body %}
     {% url 'ajouter_intervention' as ajouter_intervention_url %}
-    {% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Intervention</a>' button='<button type="button" hx-get="'|add:ajouter_intervention_url|add:'" hx-target="#dialog" class="btn btn-success me-3">Ajouter une intervention</button>' %}
+    {% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Intervention</a>' button='<button type="button" hx-get="'|add:ajouter_intervention_url|add:'" data-bs-target="#addInterventionModal" hx-target="#dialog" class="btn btn-success me-3">Ajouter une intervention</button>' %}
     <div class="container vh-100">
         <div class="row">
           {% if liste_intervention %}
@@ -24,12 +24,12 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center ms-3">
                           <div>
-                              <p class="fw-bold mb-1">Date intervention</p>
+                              <p class="fw-bold mb-1">Date debut intervention</p>
                               <p class="text-muted mb-0">{{intervention.date_intervention}}</p>
                           </div>
                           <div>
-                              <p class="fw-bold mb-1">Date défaillance</p>
-                              <p class="text-muted mb-0">{{intervention.date_defaillance}}</p>
+                              <p class="fw-bold mb-1">Date fin intervention</p>
+                              <p class="text-muted mb-0">{{intervention.date_fin_intervention}}</p>
                           </div>
                         </div>
                         <!-- <button type="button" hx-get="{% url 'detail_intervention' intervention.id %}" hx-target="#dialog" class=" btn btn-primary">Voir</button>-->

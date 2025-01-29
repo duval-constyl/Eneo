@@ -4,7 +4,7 @@
 
 {% block body %}
 {% url 'ajouter_planification' as ajouter_planification_url %}
-{% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Planification</a>' button='<button type="button" hx-get="'|add:ajouter_planification_url|add:'" hx-target="#dialog" class="btn btn-success me-3">Ajouter une planification</button>' %}
+{% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Planification</a>' button='<button type="button" hx-get="'|add:ajouter_planification_url|add:'" data-bs-target="#addPlanificationModal" hx-target="#dialog" class="btn btn-success me-3">Ajouter une planification</button>' %}
 
 <!-- Buttons trigger collapse -->
 <div class="mt-2 mb-5 px-5 py-2">
@@ -47,7 +47,7 @@
                           <li class="mb-2">
                             Tâche:
                             <ol class="description-list">
-                                {% for item in planif.tache|split_semicolon %}
+                                {% for item in planif.intervention.tache_maintenance|split_semicolon %}
                                     {% if item %}
                                         <li class="text-muted">{{ item|capfirst }}</li>
                                     {% endif %}
@@ -145,16 +145,8 @@
                                 {% endfor %}
                             </ol>
                           </li>
-                          <li class="mb-2">
-                            Liste PDR:
-                            <ol class="description-list">
-                                {% for item in planif.liste_pdr|split_semicolon %}
-                                    {% if item %}
-                                        <li class="text-muted">{{ item|capfirst }}</li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ol>
-                          </li>
+                          <li class="mb-2" id="liste_pieces_comfirmee">Liste PDR: <span class="text-muted">{{ planif.intervention.liste_piece_confirmee }}</span></li>
+                          
                         </ul>
                         <div class="d-flex justify-content-end align-items-center ms-3 mt-3">
                           <a href="{% url 'update_planification' pk=planif.pk %}" hx-get="{% url 'update_planification' pk=planif.pk %}" hx-target="#dialog" type="button" class="btn btn-warning me-3">Modifier</a>

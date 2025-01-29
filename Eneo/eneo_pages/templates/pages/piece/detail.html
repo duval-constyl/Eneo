@@ -14,8 +14,8 @@
                     <ul>
                         <li class="mb-2">Nom: <span class="text-muted">{{ piece.nom|capfirst }}</span></li>
                         <li class="mb-2">Description: <span class="text-muted">{{ piece.description }}</span></li>
-                        <li class="mb-2">Quantité Initiale: <span class="text-muted">{{ piece.quantité_disponible }}</span></li>
-                        <li class="mb-2">Quantité Restante: <span class="text-muted">00</span></li>
+                        <li class="mb-2">Quantité Initiale: <span class="text-muted">{{ piece.quantité_initial }}</span></li>
+                        <li class="mb-2">Quantité Restante: <span class="text-muted">{{piece.quantité_disponible}}</span></li>
                         <li class="mb-2">Prix: <span class="text-muted">{{ piece.prix_unitaire }} Fcfa</span></li>
                     </ul>
                 </div>

@@ -1,23 +1,55 @@
+
 <script>
-    function autoRefresh() {
-    setTimeout(function() {
-        location.reload();
-    }, 30000); // Rafraîchit toutes les 30 secondes
-    }
-    autoRefresh();
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Attendre 5 secondes avant de recharger la page
+                        setTimeout(function() {
+                            location.reload();
+                        }, 5000);
+                    } else {
+                        console.error('Form submission failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        } else {
+            console.error('Form element not found');
+        }
+    });
+
 </script>
 
 <script>
     document.body.addEventListener('htmx:afterSwap', function(event) {
     if (event.detail.target.id === 'dialog') {
-        fetch("{% url 'get_cart_quantity' %}")  // Créez une vue pour renvoyer la quantité actuelle
+        fetch("{% url 'get_cart_quantity' %}")
         .then(response => response.json())
         .then(data => {
-            document.getElementById('cart-quantity').textContent = data.quantity;
+            const cartQuantityElement = document.getElementById('cart-quantity');
+            if (cartQuantityElement) {
+                cartQuantityElement.textContent = data.quantity;
+            }
         });
     }
     });
 </script>
+
     
 
 <script>
@@ -92,27 +124,6 @@ function getCookie(name) {
 }
 </script>
 
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var typeIntervention = document.getElementById('type_intervention');
-        var intervalIntervention = document.getElementById('interval_intervention').parentNode;
-        
-        function toggleIntervalVisibility() {
-            if (typeIntervention.value === 'intervention corrective') {
-                intervalIntervention.style.display = 'none';
-            } else {
-                intervalIntervention.style.display = 'block';
-            }
-        }
-        
-        typeIntervention.addEventListener('change', toggleIntervalVisibility);
-        
-        // Initial check
-        toggleIntervalVisibility();
-    });
-</script>
-
 <script>
     function openFullscreen(url) {
     event.preventDefault();
@@ -122,12 +133,12 @@ function getCookie(name) {
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    var accordions = document.querySelectorAll('.accordion');
-    accordions.forEach(function(accordion) {
-        new mdb.Collapse(accordion, {
-        toggle: false
+        var accordions = document.querySelectorAll('.accordion');
+        accordions.forEach(function(accordion) {
+            new mdb.Collapse(accordion, {
+            toggle: false
+            });
         });
-    });
     });
 </script>
 
@@ -138,4 +149,194 @@ function getCookie(name) {
         // Enable the button if a file is selected, otherwise disable it
         submitButton.disabled = !fileInput.files.length;
     }
+</script>   
+    
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM fully loaded');
+        var addButton = document.querySelector('button[data-bs-target="#addInterventionModal"]');
+        console.log('Add button:', addButton);
+        if (addButton) {
+            addButton.addEventListener('click', function() {
+                console.log('Add button clicked');
+                setTimeout(function() {
+                    console.log('Timeout function started');
+                    var listePieceSelect = document.getElementById('id_liste_piece_confirmee');
+                    var typeIntervention = document.getElementById('id_type_intervention');
+                    console.log('Liste piece select:', listePieceSelect);
+                    console.log('Type intervention:', typeIntervention);
+
+                    var listePieceSelect = document.getElementById('id_liste_piece_confirmee');
+                    var piecesConfirmeesDiv = document.getElementById('pieces_confirmees');
+                    var listePieces = document.getElementById('liste_pieces');
+                    var typeIntervention = document.getElementById('id_type_intervention');
+                    if (typeIntervention) {
+                        var correctiveFields = document.querySelectorAll('.corrective-field');
+                        var preventiveFields = document.querySelectorAll('.preventive-field');
+    
+                        function toggleFields() {
+                            if (typeIntervention.value === 'Corrective') {
+                                correctiveFields.forEach(field => field.closest('p').style.display = 'block');
+                                preventiveFields.forEach(field => field.closest('p').style.display = 'none');
+                            } else if (typeIntervention.value === 'Preventive') {
+                                correctiveFields.forEach(field => field.closest('p').style.display = 'none');
+                                preventiveFields.forEach(field => field.closest('p').style.display = 'block');
+                            } else {
+                                correctiveFields.forEach(field => field.closest('p').style.display = 'block');
+                                preventiveFields.forEach(field => field.closest('p').style.display = 'block');
+                            }
+                        }
+    
+                        typeIntervention.addEventListener('change', toggleFields);
+                        toggleFields(); // Appel initial pour définir l'état initial
+                    } else {
+                        console.error('Element with ID "id_type_intervention" not found');
+                    }
+                    
+                    if (listePieceSelect) {
+                        listePieceSelect.addEventListener('change', function() {
+                            var selectedListeId = this.value;
+                            if (selectedListeId) {
+                                // Faire une requête AJAX pour obtenir les pièces de la liste sélectionnée
+                                fetch('/get_pieces_confirmees/' + selectedListeId + '/')
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        listePieces.innerHTML = '';
+                                        let coutPieces = 0;
+                                        data.pieces.forEach(piece => {
+                                            var li = document.createElement('li');
+                                            li.textContent = `${piece.nom} - Quantité: ${piece.quantite} - Prix unitaire: ${piece.prix_unitaire}`;
+                                            listePieces.appendChild(li);
+                                            coutPieces += piece.quantite * piece.prix_unitaire;
+                                        });
+                                        piecesConfirmeesDiv.style.display = 'block';
+                                        
+                                        // Mettre à jour le champ coût matériel
+                                        var coutMaterielField = document.getElementById('id_coût_materiel');
+                                        var coutMainOeuvreField = document.getElementById('id_coût_main_oeuvre');
+                                        var coutTotalField = document.getElementById('id_coût_total');
+
+                                        if (coutMaterielField && coutMainOeuvreField && coutTotalField) {
+                                            coutMaterielField.value = coutPieces.toFixed(2);
+                                            coutMaterielField.disabled = true;
+                                            coutTotalField.disabled = true;
+
+                                            function updateCoutTotal() {
+                                                var coutMainOeuvre = parseFloat(coutMainOeuvreField.value) || 0;
+                                                var coutTotal = parseFloat(coutMaterielField.value) + coutMainOeuvre;
+
+                                                coutTotalField.value = coutTotal.toFixed(2);
+                                            }
+
+                                            coutMainOeuvreField.addEventListener('input', updateCoutTotal);
+                                            updateCoutTotal();
+                                        }
+                                    });
+                            } else {
+                                piecesConfirmeesDiv.style.display = 'none';
+                                // Réinitialiser le champ coût matériel
+                                var coutMaterielField = document.getElementById('id_coût_materiel');
+                                var coutTotalField = document.getElementById('id_coût_total');
+                                if (coutMaterielField && coutTotalField) {
+                                    coutMaterielField.value = '0.00';
+                                    coutTotalField.value = '0.00';
+                                    coutMaterielField.disabled = true;
+                                    coutTotalField.disabled = true;
+                                }
+                            }
+                        });
+                    } else {
+                        console.error('Element with ID "id_liste_piece_confirmee" not found');
+                    }
+
+
+                    // ... rest of your code ...
+                }, 500); // Increased timeout
+            });
+        } else {
+            console.error('Add button not found');
+        }
+    });
+
 </script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM fully loaded');
+        var addButton = document.querySelector('button[data-bs-target="#addPlanificationModal"]');
+        console.log('Add button:', addButton);
+        if (addButton) {
+            addButton.addEventListener('click', function() {
+                setTimeout(function() {
+                    var listeInterventionPlan = document.getElementById('id_intervention_plan');
+                    var equipementPlanField = document.getElementById('id_equipement_plan');
+                    var hiddenEquipementField = document.getElementById('hidden_equipement_plan');
+                    if (listeInterventionPlan && equipementPlanField && hiddenEquipementField) {
+                        listeInterventionPlan.addEventListener('change', function() {
+                            var selectedInterventionId = this.value;
+                            if (selectedInterventionId) {
+                                fetch('/get_equipement/' + selectedInterventionId + '/')
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.equipement_id) {
+                                            equipementPlanField.value = data.equipement_id;
+                                            hiddenEquipementField.value = data.equipement_id;
+                                            equipementPlanField.disabled = true;
+                                            
+                                            // Optionnel : Mettre à jour le texte affiché dans le select
+                                            for (var i = 0; i < equipementPlanField.options.length; i++) {
+                                                if (equipementPlanField.options[i].value == data.equipement_id) {
+                                                    equipementPlanField.options[i].text = data.equipement_name;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    });
+                            } else {
+                                equipementPlanField.value = '';
+                                hiddenEquipementField.value = '';
+                                equipementPlanField.disabled = false;
+                            }
+                        });
+                    } else {
+                        console.error('One or more required elements not found');
+                    }
+                }, 500);
+            });
+        } else {
+            console.error('Add button not found');
+        }
+    });
+
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var listePiecesConfirmees = document.querySelectorAll('#liste_pieces_comfirmee');
+        
+        listePiecesConfirmees.forEach(function(element) {
+            var listeId = element.querySelector('.text-muted').textContent;
+            var detailsContainer = document.createElement('div');
+            detailsContainer.className = 'pieces-details mt-2';
+            element.appendChild(detailsContainer);
+    
+            fetch('/get_pieces_confirmees/' + listeId + '/')
+                .then(response => response.json())
+                .then(data => {
+                    detailsContainer.innerHTML = '<h6>Détails des pièces :</h6>';
+                    var ul = document.createElement('ul');
+                    data.pieces.forEach(piece => {
+                        var li = document.createElement('li');
+                        li.textContent = `${piece.nom} - Quantité: ${piece.quantite} - Prix unitaire: ${piece.prix_unitaire}`;
+                        ul.appendChild(li);
+                    });
+                    detailsContainer.appendChild(ul);
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des détails des pièces:', error);
+                });
+        });
+    });
+</script> 
+    

@@ -62,10 +62,10 @@
             aria-labelledby="navbarDropdownMenuAvatar"
           >
             <li>
-              <a class="dropdown-item" href="#">Mon profile</a>
+              <a class="dropdown-item" href="{% url 'profile' %}">Mon profile</a>
             </li>
             <li>
-              <a class="dropdown-item" href="#">Paramètre</a>
+              <a class="dropdown-item" href="{% url 'setting' %}" hx-get="{% url 'setting' %}" hx-target="#dialog">Paramètre</a>
             </li>
             <li>
               <a class="dropdown-item" href="{% url 'logout' %}">Déconnexion</a>

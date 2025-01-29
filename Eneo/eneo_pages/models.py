@@ -69,11 +69,13 @@ class Equipement(models.Model):
     puissance = models.FloatField()
     fréquence = models.FloatField()
     date_installation = models.DateField()
+    etat_equipement = models.CharField(max_length=100, blank=True, null=True)
     #######Transformateurs#############
     fonction = models.CharField(max_length=100, blank=True, null=True)
     emplacement_couplage = models.CharField(max_length=100, blank=True, null=True)
     regleur_en_chargeur = models.CharField(max_length=100, blank=True, null=True)
     mode_de_fonctionnement = models.CharField(max_length=100, blank=True, null=True)
+    niveau_tension = models.CharField(max_length=100, blank=True, null=True)
     #######Disjoncteurs#################
     technique_de_coupure = models.CharField(max_length=100, blank=True, null=True)
     pouvoir_de_coupure = models.CharField(max_length=100, blank=True, null=True)
@@ -90,17 +92,41 @@ class Equipement(models.Model):
         return "{} {} {}".format(self.nom, self.type_equipement, self.numero_serie)
     
 class Pièce(models.Model):
+    Etat = [
+        ("Bon", "Bon état"),
+        ("Mauvais", "Mauvais état"),
+    ]
     nom=models.CharField(max_length=100)
     description = models.TextField()
     photo = models.ImageField(upload_to="image", blank=True, null=True)
+    quantité_initial = models.IntegerField(default=0)
     quantité_disponible = models.IntegerField()
     fournisseur=models.CharField(max_length=100, blank=True, null=True)
+    etat = models.CharField(max_length=100, choices=Etat, default="Bon")
     prix_unitaire = models.IntegerField()
     date_création=models.DateTimeField(auto_now_add=True)
     date_modification=models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.nom
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Si c'est une nouvelle pièce (création)
+            self.quantité_disponible = self.quantité_initial
+        super().save(*args, **kwargs)
+
+class ListePieceConfirmee(models.Model):
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_creation = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Liste de {self.utilisateur} du {self.date_creation}"
+
+class PieceConfirmee(models.Model):
+    liste = models.ForeignKey(ListePieceConfirmee, on_delete=models.CASCADE, related_name='pieces')
+    piece = models.ForeignKey('Pièce', on_delete=models.CASCADE)
+    quantite = models.IntegerField()
+   
 
 class Intervention(models.Model):
     STATUS = [
@@ -116,19 +142,22 @@ class Intervention(models.Model):
     type_intervention = models.CharField(max_length=100, choices=TYPE, default="Corrective")
     interval_intervention = models.IntegerField(default=0)
     date_intervention=models.DateField()
-    date_defaillance=models.DateField()
+    date_fin_intervention=models.DateField()
+    date_defaillance=models.DateField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    tache_maintenance = models.TextField(blank=True, null=True)
-    action_correctives = models.TextField(blank=True, null=True)
-    causes_profondes = models.TextField(blank=True, null=True) 
     responsable = models.CharField(max_length=100, blank=True, null=True)
     status = models.CharField(max_length=100, choices=STATUS)
     sécurité = models.TextField(blank=True, null=True)
     coût = models.IntegerField()
     coût_materiel = models.IntegerField(default=0)
     coût_main_oeuvre  = models.IntegerField(default=0)
+    #Intervention corrective
+    tache_maintenance = models.TextField(blank=True, null=True)
+    action_correctives = models.TextField(blank=True, null=True)
+    causes_profondes = models.TextField(blank=True, null=True) 
     date_création=models.DateTimeField(auto_now_add=True)
     date_modification=models.DateTimeField(auto_now=True)
+    liste_piece_confirmee = models.ForeignKey(ListePieceConfirmee, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return "{} {}".format(self.id, self.equipement)
@@ -142,19 +171,7 @@ class Utiliser(models.Model):
 
     def __str__(self):
         return f'{self.quantite_prise} x {self.piece.nom}'
-    
-class ListePieceConfirmee(models.Model):
-    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
-    date_creation = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Liste de {self.utilisateur} du {self.date_creation}"
-
-class PieceConfirmee(models.Model):
-    liste = models.ForeignKey(ListePieceConfirmee, on_delete=models.CASCADE, related_name='pieces')
-    piece = models.ForeignKey('Pièce', on_delete=models.CASCADE)
-    quantite = models.IntegerField()
-        
+         
 
 class PasswordReset(models.Model):
     utilisateur = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -183,12 +200,13 @@ class Planification(models.Model):
         ("Mensuel", "Mensuel"),
         ("Annuel", "Annuel"),
     ]
-    equipement = models.ForeignKey(Equipement, on_delete=models.CASCADE)
-    tache = models.TextField()
+    intervention = models.ForeignKey(Intervention, on_delete=models.CASCADE)
+    equipement = models.ForeignKey(Equipement, on_delete=models.SET_NULL, null=True, blank=True)
+    tache = models.TextField(blank=True, null=True)
     frequence = models.CharField(max_length=100, choices=FREQUENCE, default="Annuel")
     heure_homme_requise = models.IntegerField(default=0)
-    liste_outillage = models.TextField()
-    liste_pdr = models.TextField()
+    liste_outillage = models.TextField(blank=True, null=True)
+    liste_pdr = models.TextField(blank=True, null=True)
     date_création=models.DateTimeField(auto_now_add=True)
     date_modification=models.DateTimeField(auto_now=True)
 

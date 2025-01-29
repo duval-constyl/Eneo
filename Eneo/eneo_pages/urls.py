@@ -10,6 +10,9 @@ urlpatterns = [
     path('', views.LoginView, name='login'),
     path('enregistrement/', views.RegisterView, name='register'),
     path('connexion/', views.LogoutView, name='logout'),
+    path('mise-a-jour-profile/', views.update_profile, name='update_profile'),
+    path('profile/', views.profile_view, name='profile'),
+    path('setting/', views.setting_view, name='setting'),
     path('mot-de-passe-oublié/', views.ForgotPassword, name='forgot-password'),
     path('réinitialisation-mot-de-passe-envoyé/<str:reset_id>/', views.PasswordResetSent, name='password-reset-sent'),
     path('réinitialisation-mot-de-passe/<str:reset_id>/', views.ResetPassword, name='reset-password'),
@@ -28,6 +31,7 @@ urlpatterns = [
     path("intervention/ajouter", views.AddIntervention.as_view(), name="ajouter_intervention"),
     path("intervention/update/<int:pk>", views.UpdateIntervention.as_view(), name="update_intervention"),
     path("intervention/delete/<int:pk>", views.DeleteIntervention.as_view(), name="delete_intervention"),
+    path('get_equipement/<int:intervention_id>/', views.get_equipement, name='get_equipement'),
 
     # Module pièce de réchange
     path("piece", views.piece, name="piece"),
@@ -40,6 +44,8 @@ urlpatterns = [
     path('get_cart_quantity/', views.get_cart_quantity, name='get_cart_quantity'),
     path("remove/<int:piece_id>/", views.remove_from_cart, name="remove_from_cart"),
     path('confirm_cart/', views.confirm_cart, name='confirm_cart'),
+    path('get_pieces_confirmees/<int:liste_id>/', views.get_pieces_confirmees, name='get_pieces_confirmees'),
+
 
     # Module Planification
     path("planification", views.planification, name="planification"),

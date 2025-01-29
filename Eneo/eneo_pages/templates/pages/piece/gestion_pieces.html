@@ -23,7 +23,7 @@
         <div class="fw-bold">Total</div>
         <div class="text-muted">{{ total_price }} Fcfa</div>
       </div>
-      <form method="post" action="{% url 'confirm_cart' %}">
+      <form id="form" method="post" action="{% url 'confirm_cart' %}">
         {% csrf_token %}
         <button type="submit" class="btn btn-success">Confirmer la commande</button>
       </form>    

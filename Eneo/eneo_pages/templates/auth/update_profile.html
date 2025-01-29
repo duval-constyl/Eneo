@@ -1,0 +1,21 @@
+<!-- auth/profile.html -->
+{% extends "../base/base.html" %}
+
+{% block body %}
+<div class="container vh-100 d-flex align-items-center justify-content-center">
+    <div>
+        <div class="card">
+            <h5 class="card-title text-center fw-bold mt-3">Modifier mon Profil</h5>
+            <div class="card-body">
+                <form id="form" action="{% url 'update_profile' %}" enctype="multipart/form-data"  method="post"> 
+                    {% csrf_token %} 
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-success">Ajouter</button>
+                    <button type="button" data-bs-dismiss="modal" class="btn btn-info">Annuler</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

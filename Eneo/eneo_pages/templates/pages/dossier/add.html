@@ -5,7 +5,7 @@
       <h5 class="modal-title">Ajouter un dossier</h5>
     </div>
     <div class="modal-body">
-      <form action="{% url 'ajouter_dossier' %}" enctype="multipart/form-data"  method="post"> 
+      <form id="form" action="{% url 'ajouter_dossier' %}" enctype="multipart/form-data"  method="post"> 
         {% csrf_token %} 
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Ajouter</button>

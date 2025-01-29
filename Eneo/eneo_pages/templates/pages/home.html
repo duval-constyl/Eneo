@@ -29,7 +29,7 @@
     <!-- Second Card Section -->
     <div class="col-lg-5 col-md-12 mb-3">
       <div class="card h-100">
-        <a href="" hx-get="" hx-target="#dialog" hx-swap="innerHTML" data-mdb-toggle="modal">
+        <a href="{% url 'intervention' %}">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <h5 class="card-title">Intervention du jour</h5>
@@ -103,14 +103,14 @@
     <!-- Additional Cards -->
     <div class="col-12 col-md-6 col-lg-4 col-xl-4 py-3 px-3">
       <div class="card" style="height: 515px;">
-        <a href="" hx-get="" hx-target="#dialog" hx-swap="innerHTML" data-mdb-toggle="modal">
+        <a href="{% url 'equipement' %}">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <h5 class="card-title">Quelques équipements</h5>
             </div>
             <ul class="list-group list-group-small list-group-light">
               {% if liste_equipement %}
-                {% for equipement in liste_equipement|slice:":5" %}
+                {% for equipement in liste_equipement %}
                 <li class="list-group-item px-1">
                   <p>Centrale : {{equipement.centrale}}</p>
                   <div class="d-flex justify-content-between align-items-center">
@@ -133,7 +133,7 @@
 
     <div class="col-12 col-md-6 col-lg-4 col-xl-4 py-3 px-3">
       <div class="card" style="height: 515px;">
-        <a href="" hx-get="" hx-target="#dialog" hx-swap="innerHTML" data-mdb-toggle="modal">
+        <a href="{% url 'intervention' %}">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <h5 class="card-title">Intervention en statut panne</h5>

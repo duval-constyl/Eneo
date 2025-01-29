@@ -25,6 +25,7 @@
                     <li class="list-group-item">Puissance: <span class="text-muted">{{ equipement.puissance }}</span></li>
                     <li class="list-group-item">Fréquence: <span class="text-muted">{{ equipement.fréquence }}</span></li>
                     <li class="list-group-item">Date d'installation: <span class="text-muted">{{ equipement.date_installation }}</span></li>
+                    <li class="list-group-item">Etat: <span class="text-muted">{{ equipement.etat_equipement }}</span></li>
                 </ul>
             </div>
             <div class="col-md-6">
@@ -41,6 +42,7 @@
                     {% endif %}
 
                     {% if equipement.type_equipement == "Transformateur" %}
+                    <li class="list-group-item">Niveau tension: <span class="text-muted">{{ equipement.niveau_tension }}</span></li>
                         <li class="list-group-item">Fonction: <span class="text-muted">{{ equipement.fonction }}</span></li>
                         <li class="list-group-item">Emplacement couplage: <span class="text-muted">{{ equipement.emplacement_couplage }}</span></li>
                         <li class="list-group-item">Regleur en chargeur: <span class="text-muted">{{ equipement.regleur_en_chargeur }}</span></li>
