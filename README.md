@@ -10,8 +10,8 @@ Compte admin du projet
 2- email : admin@gmail.com
 3- pwd : 123456
 
-install requirements file
-- pip3 install pipreqs
+installer tous les dependances du requirements file
+- pip install -r requirements.txt
 
 useful links
 https://www.youtube.com/watch?v=WOviyskMQ_M

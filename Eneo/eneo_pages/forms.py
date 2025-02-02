@@ -115,58 +115,7 @@ class EquipementForm(forms.ModelForm):
         # Appliquer la classe form-control à tous les champs
         for field_name, field in self.fields.items():
             field.widget.attrs.update({'class': 'form-control'})
-
-class InterventionUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Intervention
-        fields = ['equipement', 'type_intervention', 'date_intervention', 'date_defaillance', 'date_fin_intervention', 'description', 'action_correctives', 'causes_profondes', 'tache_maintenance', 'responsable', 'status', 'sécurité', 'coût', 'coût_materiel', 'coût_main_oeuvre']
-        labels = {
-            'equipement': 'Equipement',
-            'type_intervention': 'Type intervention',
-            'date_intervention': 'Date intervention',
-            'date_defaillance': 'Date defaillance',
-            'date_fin_intervention': 'Date fin intervention',
-            'description': 'Description',
-            'action_correctives': 'Action Correctives',
-            'causes_profondes': 'Causes Profondes',
-            'tache_maintenance': 'Tache maintenance',
-            'responsable': 'Responsable',
-            'status': 'Status',
-            'sécurité': 'Sécurité',
-            'coût_materiel': 'Coût Materiel',
-            'coût_main_oeuvre': 'Coût Main_oeuvre',
-            'coût': 'Coût Total'
-        }
-        widgets = {
-            'equipement': forms.Select(attrs={'class': 'form-control'}),
-            'type_intervention': forms.Select(attrs={'class': 'form-control'}),
-            'date_intervention': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'date_defaillance': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'date_fin_intervention': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),
-            'description': forms.Textarea(attrs={'class': 'form-control'}),
-            'action_correctives': forms.Textarea(attrs={'class': 'form-control'}),
-            'causes_profondes': forms.Textarea(attrs={'class': 'form-control'}),
-            'tache_maintenance': forms.Textarea(attrs={'class': 'form-control'}),
-            'responsable': forms.TextInput(attrs={'class': 'form-control'}),
-            'status': forms.Select(attrs={'class': 'form-control'}),
-            'sécurité': forms.Textarea(attrs={'class': 'form-control'}),
-            'coût_materiel': forms.TextInput(attrs={'class': 'form-control'}),
-            'coût_main_oeuvre': forms.TextInput(attrs={'class': 'form-control'}),
-            'coût': forms.TextInput(attrs={'class': 'form-control'}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        self.fields['liste_piece_confirmee'] = forms.ModelChoiceField(
-            queryset=ListePieceConfirmee.objects.none(),
-            required=False,
-            label="Liste de pièces confirmée",
-            widget=forms.Select(attrs={'class': 'form-control'})
-        )
-        if user:
-            self.fields['liste_piece_confirmee'].queryset = ListePieceConfirmee.objects.filter(utilisateur=user)
-   
+  
 class InterventionForm(forms.ModelForm):
     class Meta:
         model = Intervention
@@ -190,7 +139,7 @@ class InterventionForm(forms.ModelForm):
             'coût': 'Coût Total'
         }
         widgets = {
-            'equipement': forms.Select(attrs={'class': 'form-control'}),
+            'equipement': forms.Select(attrs={'class': 'form-control', 'id': 'id_equipement_inter'}),
             'type_intervention': forms.Select(attrs={'class': 'form-control id_type_intervention', 'id': 'id_type_intervention'}),
             'date_intervention': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'date_fin_intervention': forms.DateInput(attrs={'class':'form-control', 'type':'date'}),

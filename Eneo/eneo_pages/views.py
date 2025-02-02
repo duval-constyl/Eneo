@@ -310,8 +310,12 @@ class AddEquipement(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         response = super().form_valid(form)
-        messages.success(self.request, "L'équipement a été ajouté avec succès.")
+        messages.success(self.request, "L'équipement a été ajouté avec succès.", extra_tags='current_page')
         return response
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Erreur lors de l'ajout de l'équipement. Veuillez vérifier les informations saisies.", extra_tags='current_page')
+        return super().form_invalid(form)
 
 class UpdateEquipement(LoginRequiredMixin, UpdateView):
     model = Equipement

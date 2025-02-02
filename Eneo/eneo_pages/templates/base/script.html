@@ -1,3 +1,14 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var alerts = document.querySelectorAll('.alert.auto-dismiss');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000); // 5000 milliseconds = 5 seconds
+        });
+    });
+</script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -48,9 +59,7 @@
         });
     }
     });
-</script>
-
-    
+</script>  
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -155,8 +164,10 @@ function getCookie(name) {
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM fully loaded');
         var addButton = document.querySelector('button[data-bs-target="#addInterventionModal"]');
+        var modifButton = document.querySelector('button[data-bs-target="#modifInterventionModal"]');
         console.log('Add button:', addButton);
-        if (addButton) {
+        console.log('modif button:', modifButton);
+        if (addButton || modifButton) {
             addButton.addEventListener('click', function() {
                 console.log('Add button clicked');
                 setTimeout(function() {
