@@ -62,4 +62,7 @@ urlpatterns = [
     path("dossier/update/<int:pk>", views.UpdateDossier.as_view(), name="update_dossier"),
     path("dossier/delete/<int:pk>", views.DeleteDossier.as_view(), name="delete_dossier"),
 
+    # Module Rapport
+    path("rapport", views.rapport, name="rapport"),
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

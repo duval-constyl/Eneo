@@ -24,3 +24,17 @@ def split_semicolon(value):
 @register.filter(name='split')
 def split_filter(value, arg):
     return value.split(arg)
+
+@register.filter
+def div(value, arg):
+    try:
+        return float(value) / float(arg)
+    except (ValueError, ZeroDivisionError):
+        return 0
+
+@register.filter
+def mul(value, arg):
+    try:
+        return float(value) * float(arg)
+    except ValueError:
+        return 0

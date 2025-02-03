@@ -1,11 +1,187 @@
 {% extends "../../base/base.html" %}
-
+{% load static %}
+{% load custom_filter %}
 
 {% block body %}
-{% url 'ajouter_rapport' as ajouter_rapport_url %}
-{% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Rapport D'activités</a>' button='<button type="button" hx-get="'|add:ajouter_rapport_url|add:'" hx-target="#dialog" class="btn btn-success me-3">Ajouter une Rapport</button>' %}
-<div class="p-3">
+{% include "../../base/navbar2.html" with title='<a href="#" style="color: black;">Module Planification</a>'%}
 
-    </div>
-    
+<!-- Buttons trigger collapse -->
+<div class="mt-2 mb-5 px-5 py-2">
+  <div class="accordion" id="accordionCentrales">
+    {% for centrale in centrales %}
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingCentrale{{ centrale.id }}">
+          <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" 
+                  data-bs-toggle="collapse" 
+                  data-bs-target="#collapseCentrale{{ centrale.id }}" 
+                  aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" 
+                  aria-controls="collapseCentrale{{ centrale.id }}">
+            {{ centrale.nom }}
+          </button>
+        </h2>
+        <div id="collapseCentrale{{ centrale.id }}" 
+             class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" 
+             aria-labelledby="headingCentrale{{ centrale.id }}" 
+             data-bs-parent="#accordionCentrales">
+          <div class="accordion-body">
+            <div class="accordion" id="accordionEquipements{{ centrale.id }}">
+              {% for equipement in centrale.filtered_equipements %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingEquipement{{equipement.id}}">
+                    <button class="accordion-button collapsed" type="button" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#collapseEquipement{{equipement.id}}" 
+                            aria-expanded="false" 
+                            aria-controls="collapseEquipement{{equipement.id}}">
+                      {{ equipement.nom }} - Type: {{ equipement.type_equipement }}
+                    </button>
+                  </h2>
+                  <div id="collapseEquipement{{equipement.id}}" 
+                       class="accordion-collapse collapse" 
+                       aria-labelledby="headingEquipement{{equipement.id}}" 
+                       data-bs-parent="#accordionEquipements{{ centrale.id }}">
+                    <div class="accordion-body">
+                      {% for planif in equipement.planification_set.all %}
+                        <ul>
+                            {% for monthly_count in planif.monthly_counts %}
+                            <li>
+                                {{ monthly_count.month|date:"F Y" }}: {{ monthly_count.count }} / {{ planif.total_count }}
+                            </li>
+                            {% empty %}
+                            <p>Votre compteur est vide.</p>
+                            {% endfor %}
+                        </ul>
+                        <ul class="list-group">
+                          <li class="mb-2">
+                            Tâche:
+                            <ol class="description-list">
+                                {% for item in planif.intervention.tache_maintenance|split_semicolon %}
+                                    {% if item %}
+                                        <li class="text-muted">{{ item|capfirst }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ol>
+                          </li>
+                          <li class="list-group-item mb-2">Fréquence: 
+                            <div class="table-responsive">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Jan</th>
+                                    <th scope="col">Fév</th>
+                                    <th scope="col">Mar</th>
+                                    <th scope="col">Avr</th>
+                                    <th scope="col">Mai</th>
+                                    <th scope="col">Juin</th>
+                                    <th scope="col">Juil</th>
+                                    <th scope="col">Aoû</th>
+                                    <th scope="col">Sep</th>
+                                    <th scope="col">Oct</th>
+                                    <th scope="col">Nov</th>
+                                    <th scope="col">Déc</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% if planif.frequence == "Journalière" %}
+                                    {% for month in "01,02,03,04,05,06,07,08,09,10,11,12"|split:"," %}
+                                      <td>
+                                        <div class="d-flex flex-column">
+                                          {% with days=month|get_days_in_month %}
+                                            {% for day in days %}
+                                              <div class="form-check mb-2">
+                                                <input class="form-check-input planification-checkbox" type="checkbox" value="" id="day{{ month }}{{ day }}" data-planification-id="{{ planif.pk }}" data-date="{{ month }}{{ day }}"/>
+                                                <label class="form-check-label" for="day{{ month }}{{ day }}">
+                                                  {{ day }}
+                                                </label>
+                                              </div>
+                                            {% endfor %}
+                                          {% endwith %}
+                                        </div>
+                                      </td>
+                                    {% endfor %}
+                                
+                                  {% elif planif.frequence == "Hebdomadaire" %}
+                                    <tr>
+                                      {% for month in "01,02,03,04,05,06,07,08,09,10,11,12"|split:"," %}
+                                        <td>
+                                          {% for week in "1234"|make_list %}
+                                            <div class="form-check">
+                                              <input class="form-check-input planification-checkbox" type="checkbox" value="" id="week{{ month }}{{ week }}" data-planification-id="{{ planif.pk }}" data-date="{{ month }}{{ week }}"/>
+                                              <label class="form-check-label" for="week{{ month }}{{ week }}">{{ week }}</label>
+                                            </div>
+                                          {% endfor %}
+                                        </td>
+                                      {% endfor %}
+                                    </tr>
+                                  {% elif planif.frequence == "Mensuel" %}
+                                    <tr>
+                                      {% for month in "01,02,03,04,05,06,07,08,09,10,11,12"|split:"," %}
+                                        <td>
+                                          <div class="form-check">
+                                            <input class="form-check-input planification-checkbox" type="checkbox" value="" id="month{{ month }}" data-planification-id="{{ planif.pk }}" data-date="{{ month }}{{ month }}"/>
+                                            <label class="form-check-label" for="month{{ month }}">{{ month }}</label>
+                                          </div>
+                                        </td>
+                                      {% endfor %}
+                                    </tr>
+                                  {% elif planif.frequence == "Annuel" %}
+                                    <tr>
+                                      {% for month in "01,02,03,04,05,06,07,08,09,10,11,12"|split:"," %}
+                                        <td>
+                                          <div class="form-check">
+                                            <input class="form-check-input planification-checkbox" type="checkbox" value="" id="month{{ month }}" data-planification-id="{{ planif.pk }}" data-date="{{ month }}{{ month
+                                             }}"/>
+                                            <label class="form-check-label" for="month{{ month }}">{{ month }}</label>
+                                          </div>
+                                        </td>
+                                      {% endfor %}
+                                    </tr>
+                                  {% endif %}
+                                </tbody>
+                              </table>
+                            </div>
+                          </li>
+                          
+                          <li class="mb-2">Heures requises: <span class="text-muted">{{ planif.heure_homme_requise }}</span></li>
+                          <li class="mb-2">
+                            Liste outillage:
+                            <ol class="description-list">
+                                {% for item in planif.liste_outillage|split_semicolon %}
+                                    {% if item %}
+                                        <li class="text-muted">{{ item|capfirst }}</li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ol>
+                          </li>
+                          <li class="mb-2">
+                            Progression: {{ planif.checked_count }} / {{ planif.total_count }}
+                            ({{ planif.checked_count|div:planif.total_count|mul:100|floatformat:2 }}%)
+                          </li>                          
+                          <li class="mb-2" id="liste_pieces_comfirmee">Liste PDR: <span class="text-muted">{{ planif.intervention.liste_piece_confirmee }}</span></li>
+                          
+                        </ul> 
+                      {% empty %}
+                            <li>Aucune planification pour cet équipement.</li>
+                      {% endfor %}  
+                    </div>
+                  </div>
+                </div>
+              {% empty %}
+                <p>Aucun équipement disponible pour cette centrale.</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="text-center">
+        <img src="{% static 'img/empty.gif' %}" alt="" style="height: 200px; width: 200px;">
+        <p>Aucune centrale disponible</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+
+
 {% endblock %}

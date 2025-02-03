@@ -29,6 +29,8 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
 import json
 from datetime import datetime
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
 
 
 @login_required
@@ -941,3 +943,80 @@ class DeleteDossier(LoginRequiredMixin, DeleteView):
     def get_object(self, queryset=None):
         return Dossier.objects.get(pk=self.kwargs['pk'])
     
+def rapport(request):
+    User = get_user_model()
+    user = request.user
+    q = request.GET.get("q")
+
+    # Filtrer les équipements basés sur la section de l'utilisateur
+    if user.section == 'DISJONCTEUR':
+        base_queryset = Equipement.objects.filter(type_equipement='Disjoncteur').order_by('-date_création')
+    elif user.section == 'TRANSFORMATEUR':
+        base_queryset = Equipement.objects.filter(type_equipement='Transformateur').order_by('-date_création')
+    else:
+        base_queryset = Equipement.objects.all()
+
+    if q:
+        # Recherche dans les centrales
+        centrales = Centrale.objects.filter(
+            Q(nom__icontains=q) | 
+            Q(localisation__icontains=q)
+        )
+        
+        # Recherche dans les équipements
+        equipements_search = base_queryset.filter(
+            Q(nom__icontains=q) | 
+            Q(type_equipement__icontains=q) | 
+            Q(numero_serie__icontains=q) | 
+            Q(modèle__icontains=q) | 
+            Q(marque__icontains=q)
+        )
+        
+        # Ajouter les centrales des équipements trouvés
+        centrales |= Centrale.objects.filter(equipement__in=equipements_search).order_by('-date_création')
+        
+        # Précharger tous les équipements pour les centrales trouvées avec leurs planifications
+        centrales = centrales.prefetch_related(
+            Prefetch('equipement_set', 
+                     queryset=base_queryset.prefetch_related('planification_set'),
+                     to_attr='filtered_equipements')
+        ).order_by('-date_création')
+    else:
+        centrales = Centrale.objects.prefetch_related(
+            Prefetch('equipement_set', 
+                     queryset=base_queryset.prefetch_related('planification_set'),
+                     to_attr='filtered_equipements')
+        ).order_by('-date_création')
+
+    # Calculer le nombre de cases cochées pour chaque planification
+    current_year = timezone.now().year
+    for centrale in centrales:
+        for equipement in centrale.filtered_equipements:
+            for planif in equipement.planification_set.all():
+                checked_counts = PlanificationSelection.objects.filter(
+                    planification=planif,
+                    date__year=current_year,
+                    is_checked=True
+                ).annotate(
+                    month=TruncMonth('date')
+                ).values('month').annotate(
+                    count=Count('id')
+                ).order_by('month')
+
+                planif.monthly_counts = checked_counts
+
+                if planif.frequence == "Journalière":
+                    total = 366 if current_year % 4 == 0 else 365
+                elif planif.frequence == "Hebdomadaire":
+                    total = 52
+                elif planif.frequence == "Mensuel":
+                    total = 12
+                else:  # Annuel
+                    total = 1
+
+                planif.total_count = total
+
+    context = {
+        "centrales": centrales
+    }
+    return render(request, "pages/rapport/rapport.html", context)
